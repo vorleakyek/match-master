@@ -43,3 +43,9 @@
 .read-the-docs {
   color: #888;
 }
+
+.pokemon {
+  width: 350px;
+  height:350px;
+  border:1px solid red;
+}
