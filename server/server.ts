@@ -1,12 +1,32 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- Remove when used */
 import 'dotenv/config';
+import argon2 from 'argon2';
 import express from 'express';
 import pg from 'pg';
+import jwt from 'jsonwebtoken';
 import {
   ClientError,
   defaultMiddleware,
   errorMiddleware,
 } from './lib/index.js';
+
+
+type User = {
+  userId: number;
+  usernameText: string;
+  hashedPassword: string;
+};
+
+type Auth = {
+  usernameText: string;
+  password: string;
+}
+
+type Response = {
+  username: string;
+  hashedPassword: string;
+  createdAt: string;
+  userId: number;
+};
 
 const connectionString =
   process.env.DATABASE_URL ||
@@ -32,6 +52,87 @@ app.use(express.json());
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello, World!' });
 });
+
+app.post('/api/auth/create-account', async (req,res,next)=>{
+  try {
+    const {usernameText: usernameTextRaw, password} = req.body as Partial<Auth>;
+    const usernameText = usernameTextRaw?.toLowerCase();
+
+    if(!usernameText || !password) {
+      throw new ClientError(400, 'username and password are required fields');
+    }
+
+    const hashedPassword = await argon2.hash(password);
+
+    const sql = `
+      insert into "users" ("username","hashedPassword")
+      values($1, $2)
+      returning *
+    `;
+
+    const params = [usernameText, hashedPassword];
+    const result = await db.query<Response>(sql,params);
+
+    const [user] = result.rows;
+    const {userId, username, createdAt} = user;
+    const output = {userId, username, createdAt}
+
+    res.status(201).json(output);
+
+  } catch (err) {
+    next(err);
+  }
+})
+
+
+app.post ('/api/auth/sign-in', async (req, res, next)=>{
+  try{
+    const {usernameText: usernameTextRaw, password} = req.body as Partial<Auth>;
+    const usernameText = usernameTextRaw?.toLowerCase();
+
+    if(!usernameText || !password) {
+      throw new ClientError(401, 'invalid login');
+    }
+
+    const sql = `
+      select "userId",
+             "hashedPassword"
+      from "users"
+      where "username" = $1
+    `;
+
+    const params = [usernameText];
+    const result = await db.query<User>(sql,params);
+    const [userData] = result.rows;
+
+    if (!userData) {
+      throw new ClientError(401, 'invalid login');
+    }
+
+    const isMatching = await argon2.verify(userData.hashedPassword, password);
+
+    if (!isMatching) {
+      throw new ClientError(401, 'invalid login');
+    }
+
+    const user = {
+      userId: userData.userId,
+      username: usernameText
+    };
+
+    const secretKey = process.env.TOKEN_SECRET;
+
+    if (!secretKey) {
+      throw new Error('TOKEN_SECRET is not found in .env');
+    }
+
+    const token = jwt.sign(user, secretKey);
+    res.status(200).json({user,token});
+
+  } catch (err) {
+    next(err);
+  }
+} )
 
 /*
  * Middleware that handles paths that aren't handled by static middleware

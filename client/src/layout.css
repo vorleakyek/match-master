@@ -1,0 +1,75 @@
+body{
+  margin:0;
+}
+
+.app-title {
+  text-align: center;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.container {
+  max-width: 575px;
+  border: 1px solid black;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.text-align-left {
+  text-align: left;
+}
+
+.block {
+  display: block;
+}
+
+.column-full {
+  width:100%;
+}
+
+.column-half{
+  width:50%;
+}
+
+.column-80 {
+  width:80%
+}
+
+.column-20 {
+  width:20%;
+}
+
+.white-text {
+  color: white;
+}
+
+.blue-background {
+  background-color: #3D8BFD;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.align-center {
+  align-items: center;
+}
+
+
+
+@media screen and (width >= 768px) {
+  .container {
+    max-width: 1020px;
+  }
+}
