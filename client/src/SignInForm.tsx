@@ -16,8 +16,9 @@ export function SignInForm() {
       if (!res.ok) {
         throw new Error(`fetch Error ${res.status}`);
       }
-      const user = await res.json();
-      console.log('login', user);
+      const {user, token} = await res.json();
+      sessionStorage.setItem('token', token);
+      console.log('signed in', user,'received token: ', token);
     } catch(err) {
       alert(`Error registering user: ${err}`);
     }
@@ -27,7 +28,7 @@ export function SignInForm() {
     <div className="container">
       <div className="row">
         <div className="column-full">
-          <h1>Sing in</h1>
+          <h1>Sign in</h1>
           <p>New user? Create an account</p>
         </div>
       </div>

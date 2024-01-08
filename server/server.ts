@@ -4,6 +4,7 @@ import express from 'express';
 import pg from 'pg';
 import jwt from 'jsonwebtoken';
 import {
+  authMiddleware,
   ClientError,
   defaultMiddleware,
   errorMiddleware,
@@ -82,7 +83,7 @@ app.post('/api/auth/create-account', async (req,res,next)=>{
   } catch (err) {
     next(err);
   }
-})
+});
 
 
 app.post ('/api/auth/sign-in', async (req, res, next)=>{
@@ -132,7 +133,32 @@ app.post ('/api/auth/sign-in', async (req, res, next)=>{
   } catch (err) {
     next(err);
   }
+} );
+
+app.post('/api/level-and-theme',authMiddleware ,async(req,res,next)=>{
+  try{
+    const{level: levelRaw,cardTheme} = req.body;
+    const level = Number(levelRaw);
+    if (!level || !cardTheme) {
+      throw new ClientError(400, 'level and theme are required');
+    }
+
+    const sql = `
+      insert into "cards" ("userId","level", "cardTheme")
+      values ($1, $2,$3)
+      returning *;
+    `;
+
+    const params = [req.user?.userId, level, cardTheme];
+    const result = await db.query(sql,params);
+    const levelAndTheme = result.rows[0];
+    res.status(201).json(levelAndTheme);
+  }catch(err) {
+    console.log(err);
+    res.status(err.statusCode || 500).json({ error: err.message });
+  }
 } )
+
 
 /*
  * Middleware that handles paths that aren't handled by static middleware

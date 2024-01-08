@@ -10,4 +10,19 @@
   border: none;
   padding:5px 10px;
   border-radius: 5px;
+  margin: 20px auto;
+}
+
+.radioGroup {
+  display: block;
+  text-align: left;
+}
+
+/* .margin-L-85 {
+  margin-left: 85px;
+} */
+
+.img-default-size {
+  width:150px;
+  height:180px;
 }
