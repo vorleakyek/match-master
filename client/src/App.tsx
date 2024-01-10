@@ -2,6 +2,7 @@ import { NavBar } from "./NavBar";
 import { RegistrationForm } from "./RegistrationForm";
 import { SignInForm } from "./SignInForm";
 import {HomePage} from "./HomePage";
+import { GamePage } from "./GamePage";
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <RegistrationForm/>
         <SignInForm/>
         <HomePage/>
+        <GamePage/>
       </div>
     </>
   )

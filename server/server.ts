@@ -157,7 +157,68 @@ app.post('/api/level-and-theme',authMiddleware ,async(req,res,next)=>{
     console.log(err);
     res.status(err.statusCode || 500).json({ error: err.message });
   }
-} )
+} );
+
+app.post('/api/save-pokemon-data', async (req,res,next)=>{
+
+  try {
+    const {pokemonArr} = req.body;
+    console.log("pokemonArr", pokemonArr);
+
+    const values = pokemonArr.map(item => `('${item.id}', '${item.name}', '${item.type}', '${item.imageUrl}')`).join(',');
+
+    const sql = `
+      insert into "pokemonData" ("id","name","type","imageUrl")
+      values ${values}
+      returning *
+    `;
+
+    const result = await db.query(sql);
+    const insertedRows = result.rows;
+    console.log(insertedRows);
+
+    res.status(201).json(insertedRows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+
+});
+
+app.get('/api/pokemon', async (req, res, next) => {
+  try{
+
+    const sql = `
+      SELECT * FROM "pokemonData"
+      order by random()
+      LIMIT 3
+    `;
+
+    const result = await db.query(sql);
+    res.status(200).json(result.rows);
+    console.log(result);
+
+  }catch(err){
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+// This is the correct format
+// http -v post :8080/api/save-img-url array:='[
+//    {
+//        "name": "bulbasaur",
+//        "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
+//    },
+//    {
+//        "name": "ivysaur",
+//        "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png"
+//    }
+// ]'
+
+
 
 
 /*

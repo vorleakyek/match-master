@@ -26,3 +26,23 @@
   width:150px;
   height:180px;
 }
+
+.card{
+  width: 100px;
+  height: 88px;
+  border:1px solid red;
+  text-align: center;
+  margin: 10px 0;
+  background-color: moccasin;
+
+}
+
+.card-image {
+  max-width: 110px;
+  max-height: 87px;
+  border:1px solid blue;
+}
+
+.hidden {
+  display: none;
+}
