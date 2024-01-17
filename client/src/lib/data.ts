@@ -1,9 +1,9 @@
-export async function addLevelAndTheme(levelAndTheme) {
+export async function addLevelAndTheme(token, levelAndTheme) {
   const req = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${sessionStorage.getItem('token')}`
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(levelAndTheme),
   };
@@ -13,7 +13,6 @@ export async function addLevelAndTheme(levelAndTheme) {
   if(!res.ok) throw new Error(`fetch Error ${res.status}`);
   return await res.json();
 }
-
 
 export async function getPokemonData() {
   const req = {

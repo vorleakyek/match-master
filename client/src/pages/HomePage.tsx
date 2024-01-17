@@ -7,7 +7,7 @@ import { AppContext } from '../components/AppContext';
 
 export function HomePage() {
 
-  const { user } = useContext(AppContext);
+  const { user, token } = useContext(AppContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export function HomePage() {
       const cardTheme = formData.get('cardTheme');
       const userData = {level, cardTheme};
 
-      await addLevelAndTheme(userData);
+      await addLevelAndTheme(token, userData);
 
 
       // const req = {
@@ -116,11 +116,9 @@ export function HomePage() {
 
             <div className="row">
               <div className="column-full">
-                <button className="btn-1">Play</button>
+                <button onClick={()=> navigate('/game-page')} className="btn-1">Play</button>
               </div>
             </div>
-
-
           </form>
         </div>
       </div>

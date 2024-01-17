@@ -68,6 +68,7 @@ import { AppContext } from './components/AppContext';
 import { NavBar } from './components/NavBar';
 import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
+import { GamePage } from './pages/GamePage';
 import './App.css';
 import { Auth, User } from './lib';
 
@@ -112,6 +113,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<NavBar />}>
           <Route index element={<HomePage />} />
+          <Route path="game-page" element={<GamePage/>} />
           <Route path="sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="sign-up" element={<AuthPage action="sign-up" />} />
 
