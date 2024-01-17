@@ -28,8 +28,7 @@ export async function getPokemonData() {
 }
 
 
-
-/***************** CODE FOR POKEMON DATA *****************/
+/***************** CODE FOR POKEMON DATA in the DATABASE *****************/
 
 //RUN THIS CODES ONCE TO UPLOAD THE POKEMON DATA IN THE DATABASE
 

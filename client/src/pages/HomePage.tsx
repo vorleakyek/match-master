@@ -1,8 +1,18 @@
 import { FormEvent } from 'react';
-import pikachuImg from './assets/pikachu.png';
-import { addLevelAndTheme } from './data';
+import pikachuImg from '../assets/pikachu.png';
+import { addLevelAndTheme } from '../lib/data';
+import { useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../components/AppContext';
 
 export function HomePage() {
+
+  const { user } = useContext(AppContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) navigate('/sign-in');
+  }, [user, navigate]);
 
   async function handleSubmit(event:FormEvent<HTMLFormElement>) {
     event.preventDefault();

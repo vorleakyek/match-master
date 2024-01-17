@@ -1,6 +1,6 @@
 import { FormEvent } from "react";
 
-export function RegistrationForm() {
+export function SignInForm() {
 
   async function handleSubmit (event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -12,12 +12,13 @@ export function RegistrationForm() {
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify(userData)
       };
-      const res = await fetch('/api/auth/create-account', req);
+      const res = await fetch('/api/auth/sign-in', req);
       if (!res.ok) {
         throw new Error(`fetch Error ${res.status}`);
       }
-      const user = await res.json();
-      console.log('Registered', user);
+      const {user, token} = await res.json();
+      sessionStorage.setItem('token', token);
+      console.log('signed in', user,'received token: ', token);
     } catch(err) {
       alert(`Error registering user: ${err}`);
     }
@@ -27,8 +28,10 @@ export function RegistrationForm() {
     <div className="container">
       <div className="row">
         <div className="column-full">
-          <h1>Create account</h1>
-          <p>Already have an account? Sign In</p>
+          <h1>Sign in</h1>
+          <p>
+            New user? <Link to="/">Create an account</Link>
+          </p>
         </div>
       </div>
       <form onSubmit={handleSubmit}>
@@ -55,11 +58,11 @@ export function RegistrationForm() {
           </div>
         </div>
         <div className="row">
-        <div className="column-full">
-          <button className="btn-1">Sign Up</button>
+          <div className="column-full">
+            <button className="btn-1">Sign In</button>
+          </div>
         </div>
-      </div>
       </form>
     </div>
-  )
+  );
 }
