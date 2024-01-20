@@ -1,5 +1,10 @@
 body{
   margin:0;
+  padding:0;
+}
+
+#root {
+  padding:0
 }
 
 .app-title {
@@ -12,7 +17,7 @@ body{
   max-width: 575px;
   border: 1px solid black;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 5px;
 }
 
 .row {
@@ -24,6 +29,10 @@ body{
 
 .justify-content-center {
   justify-content: center;
+}
+
+.justify-content-space-between {
+  justify-content: space-between;
 }
 
 .text-align-left {
@@ -40,6 +49,10 @@ body{
 
 .column-half{
   width:50%;
+}
+
+.column-third{
+  width: calc(100/3)%;
 }
 
 .column-80 {

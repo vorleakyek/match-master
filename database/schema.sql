@@ -23,4 +23,12 @@ CREATE TABLE "cards" (
   "createdAt" timestamptz(6) not null default now()
 );
 
+CREATE TABLE "pokemonData" (
+  "id" integer,
+  "name" text,
+  "type" text,
+  "imageUrl" text
+);
+
+
 -- ALTER TABLE "cards" ADD FOREIGN KEY ("setOfCardsId") REFERENCES "users" ("userId");

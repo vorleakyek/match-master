@@ -1,6 +1,13 @@
-import { FormEvent } from "react";
+import { FormEvent, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-export function SignInForm() {
+export function RegistrationForm() {
+
+  const navigate = useNavigate();
+
+  useEffect(()=>{
+    navigate('/sign-in')
+  })
 
   async function handleSubmit (event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -12,13 +19,12 @@ export function SignInForm() {
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify(userData)
       };
-      const res = await fetch('/api/auth/sign-in', req);
+      const res = await fetch('/api/auth/create-account', req);
       if (!res.ok) {
         throw new Error(`fetch Error ${res.status}`);
       }
-      const {user, token} = await res.json();
-      sessionStorage.setItem('token', token);
-      console.log('signed in', user,'received token: ', token);
+      const user = await res.json();
+      console.log('Registered', user);
     } catch(err) {
       alert(`Error registering user: ${err}`);
     }
@@ -28,8 +34,10 @@ export function SignInForm() {
     <div className="container">
       <div className="row">
         <div className="column-full">
-          <h1>Sign in</h1>
-          <p>New user? Create an account</p>
+          <h1>Create account</h1>
+          <p>
+            Already have an account? <Link to="/sign-in">Sign In</Link>
+          </p>
         </div>
       </div>
       <form onSubmit={handleSubmit}>
@@ -56,11 +64,11 @@ export function SignInForm() {
           </div>
         </div>
         <div className="row">
-        <div className="column-full">
-          <button className="btn-1">Sign In</button>
+          <div className="column-full">
+            <button className="btn-1">Sign Up</button>
+          </div>
         </div>
-      </div>
       </form>
     </div>
-  )
+  );
 }

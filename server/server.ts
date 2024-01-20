@@ -10,24 +10,23 @@ import {
   errorMiddleware,
 } from './lib/index.js';
 
-
 type User = {
   userId: number;
-  usernameText: string;
+  username: string;
   hashedPassword: string;
 };
 
 type Auth = {
-  usernameText: string;
-  password: string;
-}
-
-type Response = {
   username: string;
-  hashedPassword: string;
-  createdAt: string;
-  userId: number;
+  password: string;
 };
+
+// type Response = {
+//   username: string;
+//   hashedPassword: string;
+//   createdAt: string;
+//   userId: number;
+// };
 
 const connectionString =
   process.env.DATABASE_URL ||
@@ -38,6 +37,11 @@ const db = new pg.Pool({
     rejectUnauthorized: false,
   },
 });
+
+
+const hashKey = process.env.TOKEN_SECRET;
+if (!hashKey) throw new Error('TOKEN_SECRET not found in .env');
+
 
 const app = express();
 
@@ -50,94 +54,61 @@ app.use(express.static(reactStaticDir));
 app.use(express.static(uploadsStaticDir));
 app.use(express.json());
 
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello, World!' });
-});
-
-app.post('/api/auth/create-account', async (req,res,next)=>{
+app.post('/api/auth/sign-up', async (req, res, next) => {
   try {
-    const {usernameText: usernameTextRaw, password} = req.body as Partial<Auth>;
-    const usernameText = usernameTextRaw?.toLowerCase();
-
-    if(!usernameText || !password) {
+    const { username, password } = req.body as Partial<Auth>;
+    if (!username || !password) {
       throw new ClientError(400, 'username and password are required fields');
     }
-
     const hashedPassword = await argon2.hash(password);
-
     const sql = `
-      insert into "users" ("username","hashedPassword")
-      values($1, $2)
-      returning *
+      insert into "users" ("username", "hashedPassword")
+        values ($1, $2)
+        returning "userId", "username", "createdAt"
     `;
-
-    const params = [usernameText, hashedPassword];
-    const result = await db.query<Response>(sql,params);
-
+    const params = [username, hashedPassword];
+    const result = await db.query<User>(sql, params);
     const [user] = result.rows;
-    const {userId, username, createdAt} = user;
-    const output = {userId, username, createdAt}
-
-    res.status(201).json(output);
-
+    res.status(201).json(user);
   } catch (err) {
     next(err);
   }
 });
 
-
-app.post ('/api/auth/sign-in', async (req, res, next)=>{
-  try{
-    const {usernameText: usernameTextRaw, password} = req.body as Partial<Auth>;
-    const usernameText = usernameTextRaw?.toLowerCase();
-
-    if(!usernameText || !password) {
+app.post('/api/auth/sign-in', async (req, res, next) => {
+  try {
+    const { username, password } = req.body as Partial<Auth>;
+    if (!username || !password) {
       throw new ClientError(401, 'invalid login');
     }
-
     const sql = `
       select "userId",
-             "hashedPassword"
-      from "users"
-      where "username" = $1
-    `;
-
-    const params = [usernameText];
-    const result = await db.query<User>(sql,params);
-    const [userData] = result.rows;
-
-    if (!userData) {
+            "hashedPassword"
+        from "users"
+        where "username" = $1
+      `;
+    const params = [username];
+    const result = await db.query<User>(sql, params);
+    const [user] = result.rows;
+    if (!user) {
       throw new ClientError(401, 'invalid login');
     }
-
-    const isMatching = await argon2.verify(userData.hashedPassword, password);
-
+    const { userId, hashedPassword } = user;
+    const isMatching = await argon2.verify(hashedPassword, password);
     if (!isMatching) {
       throw new ClientError(401, 'invalid login');
     }
-
-    const user = {
-      userId: userData.userId,
-      username: usernameText
-    };
-
-    const secretKey = process.env.TOKEN_SECRET;
-
-    if (!secretKey) {
-      throw new Error('TOKEN_SECRET is not found in .env');
-    }
-
-    const token = jwt.sign(user, secretKey);
-    res.status(200).json({user,token});
-
+    const payload = { userId, username };
+    const token = jwt.sign(payload, hashKey);
+    res.json({ token, user: payload });
   } catch (err) {
     next(err);
   }
-} );
+});
 
-app.post('/api/level-and-theme',authMiddleware ,async(req,res,next)=>{
-  try{
-    const{level: levelRaw,cardTheme} = req.body;
+app.post('/api/level-and-theme', authMiddleware, async (req, res, next) => {
+  try {
+    const { level: levelRaw, cardTheme } = req.body;
     const level = Number(levelRaw);
     if (!level || !cardTheme) {
       throw new ClientError(400, 'level and theme are required');
@@ -150,15 +121,130 @@ app.post('/api/level-and-theme',authMiddleware ,async(req,res,next)=>{
     `;
 
     const params = [req.user?.userId, level, cardTheme];
-    const result = await db.query(sql,params);
+    const result = await db.query(sql, params);
     const levelAndTheme = result.rows[0];
     res.status(201).json(levelAndTheme);
-  }catch(err) {
-    console.log(err);
+  } catch (err) {
+    // console.log(err);
     res.status(err.statusCode || 500).json({ error: err.message });
   }
-} )
+});
 
+app.put('/api/update-level', authMiddleware, async(req,res,next)=>{
+  try{
+    const { level: levelRaw } = req.body;
+    const level = Number(levelRaw);
+    if (!level) {
+      throw new ClientError(400, 'level is required');
+    }
+  //   const sql = `
+  //   insert into "cards" ("userId","level","cardTheme")
+  //   values($1,$2,$3)
+  //   returning *
+  // `;
+  //   const params = [req.user?.userId, level, cardTheme];
+
+    const sql = `
+    update "cards"
+    set "level" = $2
+    where "userId" = $1
+    returning *
+  `;
+
+    const params = [req.user?.userId, level];
+
+    const result = await db.query(sql, params);
+    const updatedLevel = result.rows[0];
+    res.status(201).json(updatedLevel);
+  } catch (err) {
+    res.status(err.statusCode || 500).json({ error: err.message });
+  }
+
+})
+
+app.get('/api/level-and-theme', authMiddleware, async(req, res, next)=>{
+  try{
+
+    const sql = `
+      select "level", "cardTheme"
+      from "cards"
+      where "userId" = $1
+      order by "createdAt" desc
+    `;
+
+    const result = await db.query<User>(sql,[req.user?.userId]);
+    // const result = await db.query<User>(sql, [3]);
+    console.log(result.rows[0]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    next(err)
+  }
+})
+
+app.get('/api/pokemon',authMiddleware, async (req, res, next) => {
+  try {
+    const sql = `
+      SELECT "imageUrl", "name" FROM "pokemonData"
+      order by random()
+      LIMIT 9
+    `;
+
+    const result = await db.query(sql);
+    res.status(200).json(result.rows);
+    // console.log(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+
+// This is the correct format
+// http -v post :8080/api/save-img-url array:='[
+//    {
+//        "name": "bulbasaur",
+//        "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
+//    },
+//    {
+//        "name": "ivysaur",
+//        "image": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png"
+//    }
+// ]'
+
+
+/** ******** THIS ROUTE IS ONLY USED TO SAVE THE POKEMON DATA IN THE DATABASE ************/
+app.post('/api/save-pokemon-data', async (req, res, next) => {
+  try {
+    const { pokemonArr } = req.body;
+    // console.log('pokemonArr', pokemonArr);
+
+    const values = pokemonArr
+      .map(
+        (item) =>
+          `('${item.id}', '${item.name}', '${item.type}', '${item.imageUrl}')`
+      )
+      .join(',');
+
+    const sql = `
+      insert into "pokemonData" ("id","name","type","imageUrl")
+      values ${values}
+      returning *
+    `;
+
+    const result = await db.query(sql);
+    const insertedRows = result.rows;
+    // console.log(insertedRows);
+
+    res.status(201).json(insertedRows);
+  } catch (err) {
+    // console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+/***********************************************/
 
 /*
  * Middleware that handles paths that aren't handled by static middleware
