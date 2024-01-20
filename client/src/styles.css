@@ -23,22 +23,23 @@
 } */
 
 .img-default-size {
-  width:150px;
-  height:180px;
+  width:120px;
+  height:160px;
 }
 
 .card-container{
-  padding: 5px;
-  background-color: teal;;
+  /* background-color: lightskyblue; */
+  margin:0;
 }
 
 .card{
   width: 100px;
-  height: 88px;
+  height: 100px;
   perspective: 1000px;
   border:1px solid red;
   text-align: center;
-  margin: 10px 0;
+  padding: 0;
+
 }
 
 .card-inner {
@@ -62,21 +63,22 @@
 }
 
 .card-front {
-  background-color: moccasin;
+  background-image: url("./assets/pokeball.png");
+  background-size:cover;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .card-back {
   transform:rotateY(180deg);
+  background-color:beige;
 }
 
-
-/*
-.card-i {
-  max-width: 110px;
-  max-height: 87px;
-  border:1px solid blue;
+.no-margin{
+  margin: 0;
 }
 
-.hidden {
-  display: none;
-} */
+.card-image{
+  width:70%;
+  height:70%;
+}

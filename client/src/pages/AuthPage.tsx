@@ -6,6 +6,7 @@ import { AppContext } from '../components/AppContext';
 type Props = {
   action: 'sign-in' | 'sign-up';
 };
+
 export function AuthPage({ action }: Props) {
   const navigate = useNavigate();
   const { user, handleSignIn } = useContext(AppContext);

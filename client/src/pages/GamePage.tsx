@@ -1,16 +1,27 @@
-import { getPokemonData } from '../lib/data';
-import { useEffect, useState } from 'react';
+import { getPokemonData, getLevelAndTheme } from '../lib/data';
+import { useEffect, useState, useContext } from 'react';
+import { AppContext } from '../components/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 export function GamePage() {
   const [cards, setCards] = useState([]);
   const [flippedCount, setFlippedCount] = useState(0);
   const [flippedCards, setFlippedCards] = useState([]);
+  const [numFlippedCards, setNumFlippedCards] = useState(0);
+  // const [level, setLevel] = useState(null);
+
+  const { user, token, level } = useContext(AppContext);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     async function fetchPokemon() {
       try {
-        const pokemonData = await getPokemonData();
-        const doublePokemonData = pokemonData.concat(pokemonData);
+        const pokemonData = await getPokemonData(token);
+        const { level } = await getLevelAndTheme(token);
+        const distinctCardsLevels = { 1: 3, 2: 6, 3: 9 };
+        const distinctCards = pokemonData.slice(0, distinctCardsLevels[level]);
+        const doublePokemonData = distinctCards.concat(distinctCards);
         const pokemonArray = doublePokemonData.map((item, index) => ({
           ...item,
           cardId: `${index}`,
@@ -27,7 +38,6 @@ export function GamePage() {
     fetchPokemon();
   }, []);
 
-  console.log(cards);
 
   useEffect(() => {
     if (flippedCount === 2) {
@@ -41,15 +51,23 @@ export function GamePage() {
           )
         );
 
+        setNumFlippedCards(numFlippedCards + 2);
         setFlippedCards([]);
         setFlippedCount(0);
 
-        console.log('matched!');
+        // console.log('cards.length', cards.length);
+        if (numFlippedCards === cards.length - 2) {
+        console.log('level-up', numFlippedCards);
+
+        setTimeout(()=>{navigate('/level-up')},800)
+         }
+
       } else {
         setTimeout(() => {
           setFlippedCards([]);
           setFlippedCount(0);
-          setCards(cards.map((card) =>
+          setCards(
+            cards.map((card) =>
               card.cardId === card1.cardId || card.cardId === card2.cardId
                 ? { ...card, flipped: false }
                 : card
@@ -60,13 +78,23 @@ export function GamePage() {
     }
   }, [flippedCards, flippedCount]);
 
+
+  // useEffect(()=>{
+  //   if (numFlippedCards === cards.length) {
+  //     console.log('level-up', numFlippedCards);
+  //     navigate('/level-up');
+  //   }
+  // }, [numFlippedCards]);
+
+
   const handleCardClick = (clickedCard) => {
-    console.log(clickedCard);
+    // console.log(clickedCard);
 
     if (flippedCount < 2 && !clickedCard.flipped) {
       setFlippedCards([...flippedCards, clickedCard]);
       setFlippedCount(flippedCount + 1);
-      setCards(cards.map((card) =>
+      setCards(
+        cards.map((card) =>
           card.cardId === clickedCard.cardId ? { ...card, flipped: true } : card
         )
       );
@@ -77,6 +105,8 @@ export function GamePage() {
     <>
       <div className="container">
         <h2>Match the cards</h2>
+        <p>Level: {level}</p>
+        <p>Username: {user?.username}</p>
 
         <div className="card-container row justify-content-space-between ">
           {cards.map((card) => (
@@ -96,14 +126,16 @@ export function GamePage() {
 }
 
 function Card({ card, onClick }) {
+  console.log(card)
   return (
     <div
       className={`card-inner column-third ${card.flipped ? 'flipped' : ''}`}
       id={card.id}
       onClick={onClick}>
-      <div className="card-front">Front </div>
+      <div className="card-front"></div>
       <div className="card-back">
-        <img className="card-image" src={card.imageUrl} />
+          <img className="card-image" src={card.imageUrl} />
+          <p className="no-margin">{card.name}</p>
       </div>
     </div>
   );

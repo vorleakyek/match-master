@@ -14,17 +14,50 @@ export async function addLevelAndTheme(token, levelAndTheme) {
   return await res.json();
 }
 
-export async function getPokemonData() {
+export async function updateLevelOnDB(token, newLevel) {
   const req = {
-    method: 'GET'
-    // headers: {
-    //   Authorization: `Bearer ${sessionStorage.getItem('token')}`
-    // }
+    method: 'Put',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    // body: JSON.stringify({level:newLevel, cardTheme: currentCardTheme })
+    body: JSON.stringify({ level: newLevel }),
+  };
+
+  const res = await fetch('/api/update-level', req);
+
+  if(!res.ok) throw new Error(`fetch Error ${res.status}`);
+  return await res.json();
+}
+
+export async function getLevelAndTheme(token) {
+  const req = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = await fetch('api/level-and-theme', req);
+  if (!res.ok) throw new Error(`fetch Error ${res.status}`);
+  return await res.json();
+}
+
+export async function getPokemonData(token) {
+  const req = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
   };
   const res = await fetch('api/pokemon',req);
   if (!res.ok) throw new Error(`fetch Error ${res.status}`);
   return await res.json();
 }
+
+
 
 
 /***************** CODE FOR POKEMON DATA in the DATABASE *****************/
