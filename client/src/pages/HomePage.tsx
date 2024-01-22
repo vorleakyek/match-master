@@ -63,12 +63,12 @@ export function HomePage() {
                       Pokeball
                     </label>
                     <label className="radioGroup">
-                      <input type="radio" name="cardTheme" value="river" />
-                      River
+                      <input type="radio" name="cardTheme" value="island" />
+                      Island
                     </label>
                     <label className="radioGroup">
-                      <input type="radio" name="cardTheme" value="bamboo" />
-                      Bamboo
+                      <input type="radio" name="cardTheme" value="pika" />
+                      Ash & Pikachu
                     </label>
                   </div>
                 </div>

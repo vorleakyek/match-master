@@ -7,12 +7,17 @@ export function GamePage() {
   const [cards, setCards] = useState([]);
   const [flippedCount, setFlippedCount] = useState(0);
   const [flippedCards, setFlippedCards] = useState([]);
-  const [numFlippedCards, setNumFlippedCards] = useState(0);
-  // const [level, setLevel] = useState(null);
+  const [numOfCorrectFlippedCards, setNumOfCorrectFlippedCards] = useState(0);
+  const [totalNumCardsClicked, setTotalNumCardsClicked] = useState(0);
+  const [startTime, setStartTime] = useState(new Date());
+  const [timeSpentInSecond, setTimeSpentInSecond] = useState(0);
+  const [timeSpentInMinutes, setTimeSpentInMinutes] = useState(0);
+  const [totalTimeSpent, setTotalTimeSpent] = useState(0);
+  const [score, setScore] = useState(0);
+  const [stopTiming, setStopTiming] = useState(false);
 
-  const { user, token, level } = useContext(AppContext);
+  const { user, token, level, cardTheme } = useContext(AppContext);
   const navigate = useNavigate();
-
 
   useEffect(() => {
     async function fetchPokemon() {
@@ -31,12 +36,31 @@ export function GamePage() {
           () => Math.random() - 0.5
         );
         setCards(shufflePokemonArray);
+
       } catch (err) {
         console.error(err);
       }
     }
     fetchPokemon();
   }, []);
+
+
+  useEffect(()=>{
+      const intervalId = setInterval(() => {
+        const endTime = new Date();
+        const timeSpent = (endTime - startTime) / 1000;
+
+        if (!stopTiming) {
+          setTotalTimeSpent(timeSpent);
+          setTimeSpentInMinutes(Math.floor((timeSpent / 60) % 60));
+          setTimeSpentInSecond(Math.floor(timeSpent % 60));
+        }
+      }, 1000);
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    },[startTime, stopTiming])
 
 
   useEffect(() => {
@@ -51,16 +75,17 @@ export function GamePage() {
           )
         );
 
-        setNumFlippedCards(numFlippedCards + 2);
+        setNumOfCorrectFlippedCards(numOfCorrectFlippedCards + 2);
         setFlippedCards([]);
         setFlippedCount(0);
 
-        // console.log('cards.length', cards.length);
-        if (numFlippedCards === cards.length - 2) {
-        console.log('level-up', numFlippedCards);
-
-        setTimeout(()=>{navigate('/level-up')},800)
-         }
+        if (numOfCorrectFlippedCards === cards.length - 2) {
+          setStopTiming(true);
+          setScore(calculateStars(level, totalNumCardsClicked, totalTimeSpent));
+          setTimeout(() => {
+            navigate('/level-up');
+          }, 800);
+        }
 
       } else {
         setTimeout(() => {
@@ -78,18 +103,8 @@ export function GamePage() {
     }
   }, [flippedCards, flippedCount]);
 
-
-  // useEffect(()=>{
-  //   if (numFlippedCards === cards.length) {
-  //     console.log('level-up', numFlippedCards);
-  //     navigate('/level-up');
-  //   }
-  // }, [numFlippedCards]);
-
-
   const handleCardClick = (clickedCard) => {
-    // console.log(clickedCard);
-
+    setTotalNumCardsClicked(totalNumCardsClicked + 1);
     if (flippedCount < 2 && !clickedCard.flipped) {
       setFlippedCards([...flippedCards, clickedCard]);
       setFlippedCount(flippedCount + 1);
@@ -101,18 +116,60 @@ export function GamePage() {
     }
   };
 
+  const calculateStars = (level, numberClicks, totalTimeSpent) => {
+
+    let maxClicks = 0;
+    let maxTotalTimeSpent = 0;
+
+    if (level === 1) {
+      maxClicks = 30;
+      maxTotalTimeSpent = 120;
+    } else if (level === 2) {
+      maxClicks = 60;
+      maxTotalTimeSpent = 240;
+    } else if (level === 3) {
+      maxClicks = 90;
+      maxTotalTimeSpent = 360;
+    }
+
+    const clicksPercentage = (maxClicks - numberClicks) / maxClicks * 100;
+    const timePercentage = (maxTotalTimeSpent - totalTimeSpent)/maxTotalTimeSpent * 100;
+
+    const overallPercentage = (clicksPercentage + timePercentage) / 2 ;
+
+    console.log(clicksPercentage,timePercentage,overallPercentage)
+
+    if (overallPercentage >=80) {
+      return 5;
+    } else if (overallPercentage >= 70) {
+      return 4;
+    } else if (overallPercentage >= 50) {
+      return 3;
+    } else if (overallPercentage >= 30) {
+      return 2;
+    } else if (overallPercentage >= 10) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+
   return (
     <>
       <div className="container">
         <h2>Match the cards</h2>
         <p>Level: {level}</p>
+        <p>Number of stars: {score} , totalTimeSpent: {totalTimeSpent.toFixed(0)}</p>
         <p>Username: {user?.username}</p>
+        <p>Time: {timeSpentInMinutes.toString().padStart(2,'0')} : {timeSpentInSecond.toString().padStart(2,'0')} </p>
+        <p>Number of cards Clicked: {totalNumCardsClicked} </p>
 
         <div className="card-container row justify-content-space-between ">
           {cards.map((card) => (
             <div className="card" key={card.cardId}>
               <Card
                 card={card}
+                cardTheme = {cardTheme}
                 onClick={() => {
                   handleCardClick(card);
                 }}
@@ -125,17 +182,27 @@ export function GamePage() {
   );
 }
 
-function Card({ card, onClick }) {
-  console.log(card)
+function Card({ card, onClick, cardTheme }) {
+  const cardCover = (theme) => {
+    if (theme === 'island') {
+      return 'poke-island-theme';
+    }
+    if (theme === 'pokeball') {
+      return 'pokemon-card-theme';
+    } else {
+      return 'Ash-and-Pika-theme';
+    }
+  };
+
   return (
     <div
       className={`card-inner column-third ${card.flipped ? 'flipped' : ''}`}
       id={card.id}
       onClick={onClick}>
-      <div className="card-front"></div>
+      <div className={`card-front ${cardCover(cardTheme)}`}></div>
       <div className="card-back">
-          <img className="card-image" src={card.imageUrl} />
-          <p className="no-margin">{card.name}</p>
+        <img className="card-image" src={card.imageUrl} />
+        <p className="no-margin">{card.name}</p>
       </div>
     </div>
   );

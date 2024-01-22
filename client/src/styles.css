@@ -34,7 +34,7 @@
 
 .card{
   width: 100px;
-  height: 100px;
+  height: 110px;
   perspective: 1000px;
   border:1px solid red;
   text-align: center;
@@ -62,8 +62,23 @@
   backface-visibility: hidden;
 }
 
+.poke-island-theme {
+  background-image: url("./assets/poke-island.jpg");
+}
+
+.pokemon-card-theme {
+  background-image: url("./assets/Pokemon-card-cover.jpg");
+}
+
+.Ash-and-Pika-theme {
+  background-image: url("./assets/Ash-and-Pika.jpg");
+}
+
+
+
+
+
 .card-front {
-  background-image: url("./assets/pokeball.png");
   background-size:cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -81,4 +96,12 @@
 .card-image{
   width:70%;
   height:70%;
+}
+
+.star {
+  font-size: 65px;
+}
+
+.filled {
+  color: goldenrod;
 }

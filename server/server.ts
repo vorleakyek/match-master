@@ -137,12 +137,6 @@ app.put('/api/update-level', authMiddleware, async(req,res,next)=>{
     if (!level) {
       throw new ClientError(400, 'level is required');
     }
-  //   const sql = `
-  //   insert into "cards" ("userId","level","cardTheme")
-  //   values($1,$2,$3)
-  //   returning *
-  // `;
-  //   const params = [req.user?.userId, level, cardTheme];
 
     const sql = `
     update "cards"
