@@ -18,7 +18,7 @@ export function HomePage() {
           <p>Welcome to the matching cards game,</p>
         </div>
         <div className="column-full">
-          <p>Vorleak</p>
+          <p>{user?.username}</p>
         </div>
       </div>
 
@@ -67,7 +67,7 @@ export function HomePage() {
                       Island
                     </label>
                     <label className="radioGroup">
-                      <input type="radio" name="cardTheme" value="pika" />
+                      <input type="radio" name="cardTheme" value="AshAndPika" />
                       Ash & Pikachu
                     </label>
                   </div>

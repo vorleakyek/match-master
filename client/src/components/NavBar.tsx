@@ -1,11 +1,11 @@
 import { useContext } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { AppContext } from './AppContext';
-
-// export type PageType = 'sign-in' | 'sign-up' | 'home-page' | 'game-page' | 'level-up-page' ;
+import { FaGear } from 'react-icons/fa6';
 
 export function NavBar() {
-  const { user, handleSignOut } = useContext(AppContext);
+  const { handleSignOut } = useContext(AppContext);
+  let isHidden = 'false'; // Need to use the state hook
 
   return (
     <header>
@@ -15,9 +15,20 @@ export function NavBar() {
             <div className="column-80 align-center">
               <h1 className="app-title">MatchMaster</h1>
             </div>
-            <div className="column-20 align-center">
-              <Link to="">setting</Link>
-              <button onClick={handleSignOut}>Sign out</button>
+            <div className="setting column-20 align-center">
+              <FaGear
+                className="gear-icon"
+                onClick={() => {
+                  isHidden = '';
+                  // console.log(isHidden);
+                }}
+              />
+              <div>
+                <button className={isHidden} onClick={handleSignOut}>
+                  Sign out
+                </button>
+                <Link to=''>Homepage</Link>
+              </div>
             </div>
           </div>
         </div>

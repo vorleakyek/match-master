@@ -4,15 +4,15 @@ import { AppContext } from '../components/AppContext';
 import { updateLevelOnDB } from "../lib/data";
 import { FaStar } from 'react-icons/fa';
 
-// type Props = {
-//   onNextLevel: (level:number)=>void;
-// };
+type Props = {
+  onNextLevel: (updateLevel: number) => void;
+};
 
-export function LevelUpPage( {onNextLevel} ) {
-  const { token,level } = useContext(AppContext);
+export function LevelUpPage( {onNextLevel}: Props ) {
+  const { token,level,score } = useContext(AppContext);
   const navigate = useNavigate();
 
-  const numStars = 5;
+  const numStars = score;
 
   function handlePlayAgain() {
     console.log('Play Again');
@@ -20,12 +20,10 @@ export function LevelUpPage( {onNextLevel} ) {
   }
 
   async function handleNextLevel() {
-    if (level < 3) {
-      const updatedLevel = level +1;
+    if (level !== undefined && level < 3) {
+      const updatedLevel = level + 1;
       onNextLevel(updatedLevel);
-
-      //update the database
-      await updateLevelOnDB(token, updatedLevel);
+      token && await updateLevelOnDB(token, updatedLevel);
       navigate('/game-page')
     }
   }
@@ -34,7 +32,6 @@ export function LevelUpPage( {onNextLevel} ) {
     <>
       <div className="container">
         <h1>Well done! </h1>
-        <p>Number of stars: </p>
         {
           Array.from({length: numStars}).map((_,index)=>(
             <FaStar key={index} className="star filled" />
@@ -49,8 +46,6 @@ export function LevelUpPage( {onNextLevel} ) {
             {(level===1 || level===2) && <button className="btn-1" onClick={handleNextLevel}>
               Next Level
             </button>}
-            <label>
-            </label>
           </div>
         </div>
       </div>

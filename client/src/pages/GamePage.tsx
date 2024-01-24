@@ -2,19 +2,30 @@ import { getPokemonData, getLevelAndTheme } from '../lib/data';
 import { useEffect, useState, useContext } from 'react';
 import { AppContext } from '../components/AppContext';
 import { useNavigate } from 'react-router-dom';
+import flippedSound from '../assets/flipcard.mp3';
+import matchSound from '../assets/correct.mp3';
+import winSound from '../assets/level-win.mp3';
+import { FaVolumeXmark, FaVolumeLow } from 'react-icons/fa6';
 
-export function GamePage() {
-  const [cards, setCards] = useState([]);
+type Cards = {
+  cardId: string;
+  flipped: boolean;
+  imageUrl:string;
+  name:string;
+}
+
+export function GamePage({ onUpdateScore }) {
+  const [cards, setCards] = useState<Cards[]>([]);
   const [flippedCount, setFlippedCount] = useState(0);
-  const [flippedCards, setFlippedCards] = useState([]);
+  const [flippedCards, setFlippedCards] = useState<Cards[]>([]);
   const [numOfCorrectFlippedCards, setNumOfCorrectFlippedCards] = useState(0);
   const [totalNumCardsClicked, setTotalNumCardsClicked] = useState(0);
   const [startTime, setStartTime] = useState(new Date());
   const [timeSpentInSecond, setTimeSpentInSecond] = useState(0);
   const [timeSpentInMinutes, setTimeSpentInMinutes] = useState(0);
   const [totalTimeSpent, setTotalTimeSpent] = useState(0);
-  const [score, setScore] = useState(0);
   const [stopTiming, setStopTiming] = useState(false);
+  const [sound, setSound] = useState(true);
 
   const { user, token, level, cardTheme } = useContext(AppContext);
   const navigate = useNavigate();
@@ -22,10 +33,10 @@ export function GamePage() {
   useEffect(() => {
     async function fetchPokemon() {
       try {
-        const pokemonData = await getPokemonData(token);
-        const { level } = await getLevelAndTheme(token);
+        const pokemonDataArr = await getPokemonData(token as string);
+        const { level } = await getLevelAndTheme(token as string);
         const distinctCardsLevels = { 1: 3, 2: 6, 3: 9 };
-        const distinctCards = pokemonData.slice(0, distinctCardsLevels[level]);
+        const distinctCards = pokemonDataArr.slice(0, distinctCardsLevels[level]);
         const doublePokemonData = distinctCards.concat(distinctCards);
         const pokemonArray = doublePokemonData.map((item, index) => ({
           ...item,
@@ -36,7 +47,6 @@ export function GamePage() {
           () => Math.random() - 0.5
         );
         setCards(shufflePokemonArray);
-
       } catch (err) {
         console.error(err);
       }
@@ -44,24 +54,22 @@ export function GamePage() {
     fetchPokemon();
   }, []);
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const endTime = new Date();
+      const timeSpent = (endTime.getTime() - startTime.getTime()) / 1000;
 
-  useEffect(()=>{
-      const intervalId = setInterval(() => {
-        const endTime = new Date();
-        const timeSpent = (endTime - startTime) / 1000;
+      if (!stopTiming) {
+        setTotalTimeSpent(timeSpent);
+        setTimeSpentInMinutes(Math.floor((timeSpent / 60) % 60));
+        setTimeSpentInSecond(Math.floor(timeSpent % 60));
+      }
+    }, 1000);
 
-        if (!stopTiming) {
-          setTotalTimeSpent(timeSpent);
-          setTimeSpentInMinutes(Math.floor((timeSpent / 60) % 60));
-          setTimeSpentInSecond(Math.floor(timeSpent % 60));
-        }
-      }, 1000);
-
-      return () => {
-        clearInterval(intervalId);
-      };
-    },[startTime, stopTiming])
-
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [startTime, stopTiming]);
 
   useEffect(() => {
     if (flippedCount === 2) {
@@ -78,15 +86,18 @@ export function GamePage() {
         setNumOfCorrectFlippedCards(numOfCorrectFlippedCards + 2);
         setFlippedCards([]);
         setFlippedCount(0);
+        sound && new Audio(matchSound).play();
 
         if (numOfCorrectFlippedCards === cards.length - 2) {
+          sound && new Audio(winSound).play();
           setStopTiming(true);
-          setScore(calculateStars(level, totalNumCardsClicked, totalTimeSpent));
+          onUpdateScore(
+            calculateStars(level as number, totalNumCardsClicked, totalTimeSpent)
+          );
           setTimeout(() => {
             navigate('/level-up');
           }, 800);
         }
-
       } else {
         setTimeout(() => {
           setFlippedCards([]);
@@ -103,7 +114,8 @@ export function GamePage() {
     }
   }, [flippedCards, flippedCount]);
 
-  const handleCardClick = (clickedCard) => {
+  const handleCardClick = (clickedCard:Cards) => {
+    sound && new Audio(flippedSound).play();
     setTotalNumCardsClicked(totalNumCardsClicked + 1);
     if (flippedCount < 2 && !clickedCard.flipped) {
       setFlippedCards([...flippedCards, clickedCard]);
@@ -116,14 +128,13 @@ export function GamePage() {
     }
   };
 
-  const calculateStars = (level, numberClicks, totalTimeSpent) => {
-
+  const calculateStars = (level:number, numberClicks:number, totalTimeSpent:number) => {
     let maxClicks = 0;
     let maxTotalTimeSpent = 0;
 
     if (level === 1) {
-      maxClicks = 30;
-      maxTotalTimeSpent = 120;
+      maxClicks = 15;
+      maxTotalTimeSpent = 100;
     } else if (level === 2) {
       maxClicks = 60;
       maxTotalTimeSpent = 240;
@@ -132,14 +143,13 @@ export function GamePage() {
       maxTotalTimeSpent = 360;
     }
 
-    const clicksPercentage = (maxClicks - numberClicks) / maxClicks * 100;
-    const timePercentage = (maxTotalTimeSpent - totalTimeSpent)/maxTotalTimeSpent * 100;
+    const clicksPercentage = ((maxClicks - numberClicks) / maxClicks) * 100;
+    const timePercentage =
+      ((maxTotalTimeSpent - totalTimeSpent) / maxTotalTimeSpent) * 100;
 
-    const overallPercentage = (clicksPercentage + timePercentage) / 2 ;
+    const overallPercentage = (clicksPercentage + timePercentage) / 2;
 
-    console.log(clicksPercentage,timePercentage,overallPercentage)
-
-    if (overallPercentage >=80) {
+    if (overallPercentage >= 80) {
       return 5;
     } else if (overallPercentage >= 70) {
       return 4;
@@ -152,6 +162,15 @@ export function GamePage() {
     } else {
       return 0;
     }
+  };
+
+  function muteSound(sound:string) {
+    if(sound) {
+      setSound(false);
+    } else {
+      setSound(true);
+    }
+
   }
 
   return (
@@ -159,17 +178,30 @@ export function GamePage() {
       <div className="container">
         <h2>Match the cards</h2>
         <p>Level: {level}</p>
-        <p>Number of stars: {score} , totalTimeSpent: {totalTimeSpent.toFixed(0)}</p>
         <p>Username: {user?.username}</p>
-        <p>Time: {timeSpentInMinutes.toString().padStart(2,'0')} : {timeSpentInSecond.toString().padStart(2,'0')} </p>
+        <p>
+          Time: {timeSpentInMinutes.toString().padStart(2, '0')} :{' '}
+          {timeSpentInSecond.toString().padStart(2, '0')}{' '}
+        </p>
         <p>Number of cards Clicked: {totalNumCardsClicked} </p>
+        <button
+          className="sound-btn"
+          onClick={() => {
+            muteSound(sound);
+          }}>
+          {sound ? (
+            <FaVolumeLow className="sound-icon" />
+          ) : (
+            <FaVolumeXmark className="sound-icon" />
+          )}
+        </button>
 
         <div className="card-container row justify-content-space-between ">
           {cards.map((card) => (
             <div className="card" key={card.cardId}>
               <Card
                 card={card}
-                cardTheme = {cardTheme}
+                cardTheme={cardTheme}
                 onClick={() => {
                   handleCardClick(card);
                 }}

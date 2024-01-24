@@ -6,6 +6,7 @@ type Props = {
   action: 'sign-up' | 'sign-in';
   onSignIn: (auth: Auth) => void;
 };
+
 export function AuthForm({ action, onSignIn }: Props) {
   const navigate = useNavigate();
   const [error, setError] = useState<unknown>();
