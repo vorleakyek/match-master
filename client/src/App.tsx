@@ -6,9 +6,9 @@ import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
 import { GamePage } from './pages/GamePage';
 import './App.css';
-import { Auth, User } from './lib';
+import { Auth, User } from './lib/api';
 import { LevelUpPage } from './pages/LevelUpPage';
-import { addLevelAndTheme } from './lib/data';
+import { type LevelAndTheme, addLevelAndTheme } from './lib/data';
 import { FormEvent } from 'react';
 
 const tokenKey = 'react-context-jwt';
@@ -19,6 +19,7 @@ export default function App() {
   const [level, setLevel] = useState<number>();
   const [cardTheme, setCardTheme] = useState<string>('pokeball');
   const [isAuthorizing, setIsAuthorizing] = useState(true);
+  const [score, setScore] = useState(0);
 
   const navigate = useNavigate();
 
@@ -45,9 +46,7 @@ export default function App() {
     localStorage.removeItem(tokenKey);
     setUser(undefined);
     setToken(undefined);
-    navigate('/sign-in');
   }
-
 
   async function handleLevelAndTheme(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -56,52 +55,46 @@ export default function App() {
       const formData = new FormData(event.currentTarget);
       const level = Number(formData.get('level'));
       const cardTheme = formData.get('cardTheme');
-      const LevelAndTheme = { level, cardTheme };
+      const levelAndTheme = { level, cardTheme };
 
-      await addLevelAndTheme(token, LevelAndTheme);
-      console.log(level);
-
-      //NEED TO SET LEVEL BASED ON THE USER INPUT
+      await addLevelAndTheme(token as string, levelAndTheme as LevelAndTheme);
       setLevel(level);
-      setCardTheme(cardTheme);
+      setCardTheme(cardTheme as string);
       navigate('/game-page');
-
     } catch (err) {
       console.log(err);
     }
-
   }
-
-    // const onNextLevel = (updateLevel) => {
-    //   setLevel(updateLevel);
-    // };
 
   const contextValue = {
     user,
     token,
     level,
     cardTheme,
+    score,
     handleSignIn,
     handleSignOut,
     handleLevelAndTheme,
   };
-  /* TODO: Wrap the `Routes` with `AppContext.Provider`
-   * and pass `contextValue` as the Provider value.
-   */
 
   return (
     <AppContext.Provider value={contextValue}>
       <Routes>
         <Route path="/" element={<NavBar />}>
           <Route index element={<HomePage />} />
-          <Route path="game-page" element={<GamePage />} />
+          <Route
+            path="game-page"
+            element={
+              <GamePage onUpdateScore={(newScore:number) => setScore(newScore)} />
+            }
+          />
           <Route path="sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="sign-up" element={<AuthPage action="sign-up" />} />
           <Route
             path="level-up"
             element={
               <LevelUpPage
-                onNextLevel={(updateLevel) => setLevel(updateLevel)}
+                onNextLevel={(updateLevel:number) => setLevel(updateLevel)}
               />
             }
           />

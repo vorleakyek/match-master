@@ -1,4 +1,17 @@
-export async function addLevelAndTheme(token, levelAndTheme) {
+export type LevelAndTheme = {
+  level: number;
+  cardTheme: string;
+};
+
+export type PokemonData = {
+  imageUrl: string;
+  name: string;
+};
+
+export async function addLevelAndTheme(
+  token: string,
+  levelAndTheme: LevelAndTheme
+): Promise<LevelAndTheme> {
   const req = {
     method: 'POST',
     headers: {
@@ -8,30 +21,32 @@ export async function addLevelAndTheme(token, levelAndTheme) {
     body: JSON.stringify(levelAndTheme),
   };
 
-  const res = await fetch('/api/level-and-theme',req);
+  const res = await fetch('/api/level-and-theme', req);
 
-  if(!res.ok) throw new Error(`fetch Error ${res.status}`);
+  if (!res.ok) throw new Error(`fetch Error ${res.status}`);
   return await res.json();
 }
 
-export async function updateLevelOnDB(token, newLevel) {
+export async function updateLevelOnDB(
+  token: string,
+  newLevel: number
+): Promise<LevelAndTheme> {
   const req = {
     method: 'Put',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    // body: JSON.stringify({level:newLevel, cardTheme: currentCardTheme })
     body: JSON.stringify({ level: newLevel }),
   };
 
   const res = await fetch('/api/update-level', req);
 
-  if(!res.ok) throw new Error(`fetch Error ${res.status}`);
+  if (!res.ok) throw new Error(`fetch Error ${res.status}`);
   return await res.json();
 }
 
-export async function getLevelAndTheme(token) {
+export async function getLevelAndTheme(token: string): Promise<LevelAndTheme> {
   const req = {
     method: 'GET',
     headers: {
@@ -44,7 +59,7 @@ export async function getLevelAndTheme(token) {
   return await res.json();
 }
 
-export async function getPokemonData(token) {
+export async function getPokemonData(token: string): Promise<PokemonData[]> {
   const req = {
     method: 'GET',
     headers: {
@@ -52,13 +67,10 @@ export async function getPokemonData(token) {
       Authorization: `Bearer ${token}`,
     },
   };
-  const res = await fetch('api/pokemon',req);
+  const res = await fetch('api/pokemon', req);
   if (!res.ok) throw new Error(`fetch Error ${res.status}`);
   return await res.json();
 }
-
-
-
 
 /***************** CODE FOR POKEMON DATA in the DATABASE *****************/
 
@@ -78,30 +90,22 @@ export async function getPokemonData(token) {
 //         type: result.types.map((type)=>type.type.name).join(', '),
 //         id: result.id
 //     }));
-//     // console.log("pokemon from data.ts", pokemon);
 //     return pokemon;
 //   })
-
-//   // console.log('arrPromise',arrPromise);
 //   // return arrPromise;
 // }
-
 
 // export async function savePokemonImgUrlToDB() {
 
 //   console.log('running savePokemonImgUrlToDB')
 //   try {
 //     const pokemonArr = await fetchPokemonData();
-//     // console.log('pokemonArr', pokemonArr)
 
 //     const req = {
 //       method: 'POST',
 //       headers: {'Content-Type': 'application/json'},
 //       body: JSON.stringify({pokemonArr})
 //     }
-//     console.log(req.body)
-
-//     console.log('req from data.ts', req)
 
 //     const res = await fetch('/api/save-pokemon-data',req);
 //     console.log(res);
