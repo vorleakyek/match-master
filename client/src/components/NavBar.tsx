@@ -1,11 +1,17 @@
-import { useContext } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import { Link, Outlet} from 'react-router-dom';
 import { AppContext } from './AppContext';
 import { FaGear } from 'react-icons/fa6';
 
 export function NavBar() {
   const { handleSignOut } = useContext(AppContext);
-  let isHidden = 'false'; // Need to use the state hook
+  const [isHidden, setIsHidden] = useState(true);
+  const showSetting = !['/sign-up', '/sign-in'].includes(window.location.pathname);
+
+  function handleSignOutAndReset() {
+    setIsHidden(true);
+    handleSignOut();
+  }
 
   return (
     <header>
@@ -15,21 +21,34 @@ export function NavBar() {
             <div className="column-80 align-center">
               <h1 className="app-title">MatchMaster</h1>
             </div>
-            <div className="setting column-20 align-center">
-              <FaGear
-                className="gear-icon"
-                onClick={() => {
-                  isHidden = '';
-                  // console.log(isHidden);
-                }}
-              />
-              <div>
-                <button className={isHidden} onClick={handleSignOut}>
-                  Sign out
+            {showSetting && (
+              <div className="setting-container column-20 align-center">
+                <button className="gear-btn">
+                  <FaGear
+                    className="gear-icon"
+                    onClick={() => {
+                      setIsHidden(!isHidden);
+                    }}
+                  />
                 </button>
-                <Link to=''>Homepage</Link>
+
+                <div className={`setting ${isHidden ? 'hidden' : ''}`}>
+                  <p>
+                    <Link className="link-style" to="" onClick={()=>{setIsHidden(true)}}>
+                      Homepage
+                    </Link>
+                  </p>
+                  <p>
+                    <Link
+                      className="link-style"
+                      to="/sign-in"
+                      onClick={handleSignOutAndReset}>
+                      Sign out
+                    </Link>
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </nav>

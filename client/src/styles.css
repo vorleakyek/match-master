@@ -105,3 +105,25 @@
 .filled {
   color: goldenrod;
 }
+
+.gear-btn {
+  background-color: transparent;
+  border:none
+}
+
+
+.setting-container{
+  position: relative;
+}
+
+.setting {
+  position: absolute;
+  right: 5px;
+  background-color: white;
+  padding: 5px 10px;
+}
+
+.link-style {
+  color:black;
+  text-decoration: none;
+}

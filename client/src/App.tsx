@@ -46,7 +46,6 @@ export default function App() {
     localStorage.removeItem(tokenKey);
     setUser(undefined);
     setToken(undefined);
-    navigate('/sign-in');
   }
 
   async function handleLevelAndTheme(event: FormEvent<HTMLFormElement>) {
