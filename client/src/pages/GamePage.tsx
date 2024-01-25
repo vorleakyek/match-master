@@ -176,25 +176,39 @@ export function GamePage({ onUpdateScore }) {
   return (
     <>
       <div className="container">
-        <h2>Match the cards</h2>
-        <p>Level: {level}</p>
-        <p>Username: {user?.username}</p>
-        <p>
-          Time: {timeSpentInMinutes.toString().padStart(2, '0')} :{' '}
-          {timeSpentInSecond.toString().padStart(2, '0')}{' '}
-        </p>
-        <p>Number of cards Clicked: {totalNumCardsClicked} </p>
-        <button
-          className="sound-btn"
-          onClick={() => {
-            muteSound(sound);
-          }}>
-          {sound ? (
-            <FaVolumeLow className="sound-icon" />
-          ) : (
-            <FaVolumeXmark className="sound-icon" />
-          )}
-        </button>
+        <div className="row justify-content-space-between padding-10 ">
+          <div className="column-third text-align-left">
+            <p className="level">Level: {level}</p>
+            <p className="color-blue">
+              Number of cards Clicked: {totalNumCardsClicked}{' '}
+            </p>
+          </div>
+          <div className="column-two-third text-align-right">
+            <p className="username uppercase">{user?.username}</p>
+            <p className="color-blue">
+              Time: {timeSpentInMinutes.toString().padStart(2, '0')} :{' '}
+              {timeSpentInSecond.toString().padStart(2, '0')}{' '}
+            </p>
+          </div>
+        </div>
+        <div className="row justify-content-space-between">
+          <div className="d-flex justify-content-start column-one-fifth">
+            <button
+              className="sound-btn"
+              onClick={() => {
+                muteSound(sound);
+              }}>
+              {sound ? (
+                <FaVolumeLow className="sound-icon" />
+              ) : (
+                <FaVolumeXmark className="sound-icon" />
+              )}
+            </button>
+          </div>
+          <div className="column-four-fifth text-align-left">
+            <h2 className="uppercase font-size-18 padding-10">Match the cards</h2>
+          </div>
+        </div>
 
         <div className="card-container row justify-content-space-between ">
           {cards.map((card) => (
