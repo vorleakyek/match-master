@@ -30,7 +30,7 @@ export function LevelUpPage( {onNextLevel}: Props ) {
 
   return (
     <>
-      <div className="container">
+      <div className="container margin-top-0">
         <h1 className="color-blue">Well done! </h1>
         {Array.from({ length: numStars }).map((_, index) => (
           <FaStar key={index} className="star filled" />

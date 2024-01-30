@@ -26,8 +26,7 @@ export function AuthPage({ action }: Props) {
       </>
     ) : (
       <>
-        Already have an account?
-        <Link to={alternateActionTo}>Sign In</Link>
+        Already have an account? <Link to={alternateActionTo}>Sign In</Link>
       </>
     );
 

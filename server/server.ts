@@ -174,7 +174,6 @@ app.get('/api/pokemon',authMiddleware, async (req, res, next) => {
     `;
 
     const result = await db.query<PokemonData[]>(sql);
-    console.log(result.rows);
     res.status(200).json(result.rows);
   } catch (err) {
     next(err);

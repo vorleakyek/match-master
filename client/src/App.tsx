@@ -5,6 +5,7 @@ import { NavBar } from './components/NavBar';
 import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
 import { GamePage } from './pages/GamePage';
+import { Footer } from './components/Footer';
 import './App.css';
 import { Auth, User } from './lib/api';
 import { LevelUpPage } from './pages/LevelUpPage';
@@ -100,6 +101,7 @@ export default function App() {
           />
         </Route>
       </Routes>
+      <Footer />
     </AppContext.Provider>
   );
 }
