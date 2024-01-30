@@ -6,11 +6,12 @@
 
 .btn-1 {
   color: white;
-  background-color: #0288D1;
+  background-color: #0288d1;
   border: none;
-  padding:5px 10px;
+  padding: 5px 10px;
   border-radius: 5px;
-  margin: 20px auto;
+  margin: 12px auto;
+  margin-right: 10px;
 }
 
 .radioGroup {
@@ -18,28 +19,12 @@
   text-align: left;
 }
 
-/* .margin-L-85 {
-  margin-left: 85px;
-} */
-
-.img-default-size {
-  width:120px;
-  height:160px;
-}
-
-.card-container{
-  /* background-color: lightskyblue; */
-  margin:0;
-}
-
-.card{
-  width: 100px;
-  height: 110px;
+.card {
   perspective: 1000px;
-  border:1px solid red;
+  border: 1px solid #f5f5f5;
   text-align: center;
   padding: 0;
-
+  margin-bottom: 15px;
 }
 
 .card-inner {
@@ -47,55 +32,53 @@
   height: 100%;
   transform-style: preserve-3d;
   transition: transform 0.6s;
-  border: 1px solid blue;
-
 }
 
 .flipped {
   transform: rotateY(180deg);
 }
 
-.card-front, .card-back {
+.card-front,
+.card-back {
   width: 100%;
   height: 100%;
   position: absolute;
   backface-visibility: hidden;
+  border-radius: 10px;
+  border: 1px solid teal;
+  box-shadow: 5px 5px 8px rgba(128, 128, 128, 0.8);
 }
 
 .poke-island-theme {
-  background-image: url("./assets/poke-island.jpg");
+  background-image: url('./assets/poke-island.jpg');
 }
 
 .pokemon-card-theme {
-  background-image: url("./assets/Pokemon-card-cover.jpg");
+  background-image: url('./assets/Pokemon-card-cover.jpg');
 }
 
 .Ash-and-Pika-theme {
-  background-image: url("./assets/Ash-and-Pika.jpg");
+  background-image: url('./assets/Ash-and-Pika.jpg');
 }
 
-
-
-
-
 .card-front {
-  background-size:cover;
+  background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
 }
 
 .card-back {
-  transform:rotateY(180deg);
-  background-color:beige;
+  transform: rotateY(180deg);
+  background-color: #ffffdc;
 }
 
-.no-margin{
+.no-margin {
   margin: 0;
 }
 
-.card-image{
-  width:70%;
-  height:70%;
+.card-image {
+  width: 70%;
+  height: 70%;
 }
 
 .star {
@@ -108,22 +91,90 @@
 
 .gear-btn {
   background-color: transparent;
-  border:none
+  border: none;
 }
 
+.gear-icon {
+  font-size: 20px;
+}
 
-.setting-container{
+.setting-container {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .setting {
   position: absolute;
+  top: 20px;
   right: 5px;
   background-color: white;
   padding: 5px 10px;
+  border: 1px solid gray;
+  border-radius: 10px;
 }
 
 .link-style {
-  color:black;
+  color: black;
   text-decoration: none;
+}
+
+.username,
+.level {
+  color: #17a2b8;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.font-size-14 {
+  font-size: 14px;
+}
+
+.font-size-16 {
+  font-size: 16px;
+}
+
+.font-size-18 {
+  font-size: 18px;
+}
+
+.font-size-24 {
+  font-size: 24px;
+}
+
+.color-blue {
+  color: #17a2b8;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.footer {
+  background-color: #17a2b8;
+}
+
+.footer-content {
+  color: white;
+  padding: 10px 0 0;
+  margin: 0;
+}
+
+.heart {
+  color: red;
+  vertical-align: middle;
+}
+
+.bg-lightgray {
+  background-color: #f5f5f5;
+}
+
+.margin-top-0 {
+  margin-top: 0;
+  padding-top: 10px;
 }

@@ -18,11 +18,11 @@ export function NavBar() {
       <nav>
         <div className="container blue-background">
           <div className="row">
-            <div className="column-80 align-center">
+            <div className="column-four-fifth">
               <h1 className="app-title">MatchMaster</h1>
             </div>
             {showSetting && (
-              <div className="setting-container column-20 align-center">
+              <div className="setting-container column-one-fifth">
                 <button className="gear-btn">
                   <FaGear
                     className="gear-icon"
@@ -31,10 +31,14 @@ export function NavBar() {
                     }}
                   />
                 </button>
-
                 <div className={`setting ${isHidden ? 'hidden' : ''}`}>
                   <p>
-                    <Link className="link-style" to="" onClick={()=>{setIsHidden(true)}}>
+                    <Link
+                      className="link-style"
+                      to=""
+                      onClick={() => {
+                        setIsHidden(true);
+                      }}>
                       Homepage
                     </Link>
                   </p>

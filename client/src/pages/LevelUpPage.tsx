@@ -30,22 +30,22 @@ export function LevelUpPage( {onNextLevel}: Props ) {
 
   return (
     <>
-      <div className="container">
-        <h1>Well done! </h1>
-        {
-          Array.from({length: numStars}).map((_,index)=>(
-            <FaStar key={index} className="star filled" />
-          ))
-        }
+      <div className="container margin-top-0">
+        <h1 className="color-blue">Well done! </h1>
+        {Array.from({ length: numStars }).map((_, index) => (
+          <FaStar key={index} className="star filled" />
+        ))}
 
         <div className="row">
           <div className="column-full">
             <button className="btn-1" onClick={handlePlayAgain}>
               Play Again
             </button>
-            {(level===1 || level===2) && <button className="btn-1" onClick={handleNextLevel}>
-              Next Level
-            </button>}
+            {(level === 1 || level === 2) && (
+              <button className="btn-1" onClick={handleNextLevel}>
+                Next Level
+              </button>
+            )}
           </div>
         </div>
       </div>

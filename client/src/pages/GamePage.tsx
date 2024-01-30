@@ -173,41 +173,74 @@ export function GamePage({ onUpdateScore }) {
 
   }
 
+  const cardColumnLevel = (level) => {
+    if (level === 1) {
+      return 'col-lev-1';
+    } else if (level === 2) {
+      return 'col-lev-2';
+    } else {
+      return 'col-lev-3';
+    }
+
+  }
+
   return (
     <>
       <div className="container">
-        <h2>Match the cards</h2>
-        <p>Level: {level}</p>
-        <p>Username: {user?.username}</p>
-        <p>
-          Time: {timeSpentInMinutes.toString().padStart(2, '0')} :{' '}
-          {timeSpentInSecond.toString().padStart(2, '0')}{' '}
-        </p>
-        <p>Number of cards Clicked: {totalNumCardsClicked} </p>
-        <button
-          className="sound-btn"
-          onClick={() => {
-            muteSound(sound);
-          }}>
-          {sound ? (
-            <FaVolumeLow className="sound-icon" />
-          ) : (
-            <FaVolumeXmark className="sound-icon" />
-          )}
-        </button>
+        <div className="row justify-content-space-between paddingLR-20 ">
+          <div className="column-third text-align-left">
+            <p className="level">Level: {level}</p>
+            <p className="color-blue">
+              Number of cards Clicked: {totalNumCardsClicked}{' '}
+            </p>
+          </div>
+          <div className="column-two-third text-align-right">
+            <p className="username uppercase">{user?.username}</p>
+            <p className="color-blue">
+              Time: {timeSpentInMinutes.toString().padStart(2, '0')} :{' '}
+              {timeSpentInSecond.toString().padStart(2, '0')}{' '}
+            </p>
+          </div>
+        </div>
+        <div className="row justify-content-space-between margin-left-20 ">
+          <div className="d-flex justify-content-start column-one-fifth ">
+            <button
+              className="sound-btn"
+              onClick={() => {
+                muteSound(sound);
+              }}>
+              {sound ? (
+                <FaVolumeLow className="sound-icon" />
+              ) : (
+                <FaVolumeXmark className="sound-icon" />
+              )}
+            </button>
+          </div>
+          <div className="column-three-fifth text-align-left">
+            <h2 className="uppercase font-size-18 padding-10 text-align-center">
+              Match the cards
+            </h2>
+          </div>
+          <div className="column-one-fifth"></div>
+        </div>
 
-        <div className="card-container row justify-content-space-between ">
-          {cards.map((card) => (
-            <div className="card" key={card.cardId}>
-              <Card
-                card={card}
-                cardTheme={cardTheme}
-                onClick={() => {
-                  handleCardClick(card);
-                }}
-              />
-            </div>
-          ))}
+        <div className="card-container row justify-content-center ">
+          <div
+            className={`row ${cardColumnLevel(
+              level
+            )} justify-content-space-around`}>
+            {cards.map((card) => (
+              <div className="card card-size" key={card.cardId}>
+                <Card
+                  card={card}
+                  cardTheme={cardTheme}
+                  onClick={() => {
+                    handleCardClick(card);
+                  }}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </>
@@ -228,7 +261,7 @@ function Card({ card, onClick, cardTheme }) {
 
   return (
     <div
-      className={`card-inner column-third ${card.flipped ? 'flipped' : ''}`}
+      className={`card-inner ${card.flipped ? 'flipped' : ''}`}
       id={card.id}
       onClick={onClick}>
       <div className={`card-front ${cardCover(cardTheme)}`}></div>
