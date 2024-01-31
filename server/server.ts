@@ -9,8 +9,13 @@ import {
   defaultMiddleware,
   errorMiddleware,
 } from './lib/index.js';
-import type {LevelAndTheme, PokemonData} from '../client/src/lib/data'
-
+import type {
+  LevelAndTheme,
+  PokemonData,
+  GameProgressData,
+} from '../client/src/lib/data';
+// import { ServerSocket } from './socket.js';
+// import http from 'http';
 
 type User = {
   userId: number;
@@ -27,7 +32,7 @@ const connectionString =
   process.env.DATABASE_URL ||
   `postgresql://${process.env.RDS_USERNAME}:${process.env.RDS_PASSWORD}@${process.env.RDS_HOSTNAME}:${process.env.RDS_PORT}/${process.env.RDS_DB_NAME}`;
 
-  const db = new pg.Pool({
+const db = new pg.Pool({
   connectionString,
   ssl: {
     rejectUnauthorized: false,
@@ -38,6 +43,12 @@ const hashKey = process.env.TOKEN_SECRET;
 if (!hashKey) throw new Error('TOKEN_SECRET not found in .env');
 
 const app = express();
+
+/**Server Handling */
+// const httpServer = http.createServer(app);
+
+/** Start the Scoket */
+// new ServerSocket(httpServer);
 
 // Create paths for static directories
 const reactStaticDir = new URL('../client/dist', import.meta.url).pathname;
@@ -109,7 +120,7 @@ app.post('/api/level-and-theme', authMiddleware, async (req, res, next) => {
     }
 
     const sql = `
-      insert into "cards" ("userId","level", "cardTheme")
+      insert into "UserGameProgress" ("userId","level", "cardTheme")
       values ($1, $2,$3)
       returning "level","cardTheme";
     `;
@@ -123,8 +134,8 @@ app.post('/api/level-and-theme', authMiddleware, async (req, res, next) => {
   }
 });
 
-app.put('/api/update-level', authMiddleware, async(req,res,next)=>{
-  try{
+app.put('/api/update-level', authMiddleware, async (req, res, next) => {
+  try {
     const { level: levelRaw } = req.body as Partial<LevelAndTheme>;
     const level = Number(levelRaw);
     if (!level) {
@@ -132,7 +143,7 @@ app.put('/api/update-level', authMiddleware, async(req,res,next)=>{
     }
 
     const sql = `
-    update "cards"
+    update "UserGameProgress"
     set "level" = $2
     where "userId" = $1
     returning "level","cardTheme"
@@ -145,27 +156,101 @@ app.put('/api/update-level', authMiddleware, async(req,res,next)=>{
   } catch (err) {
     next(err);
   }
+});
 
-})
+app.put(
+  '/api/update-user-game-progress',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      console.log(req.body);
+      // const { level: rawLevel, star: rawStar, score: rawScore, completedTime: rawTime, totalClick: rawClick, sound } =
+      //   req.body as Partial<GameProgressData>;
 
-app.get('/api/level-and-theme', authMiddleware, async(req, res, next)=>{
-  try{
+      const {
+        level,
+        star,
+        score,
+        completedTime,
+        totalClick,
+        sound
+      } = req.body as Partial<GameProgressData>;
 
+      if (!level || !star || !score || !completedTime || !totalClick || sound===null) {
+        throw new ClientError(
+          400,
+          'level, star, score, completedTime, totalClick, and sound are required'
+        );
+      }
+
+
+      // const sql = `
+      //   update "UserGameProgress"
+      //   set "level" = $2,
+      //       "star" = $3,
+      //       "score" = $4,
+      //       "completedTime" = $5,
+      //       "totalClicked" = $6,
+      //       "sound" = $7
+      //   where "userId" = $1
+      //   returning "level", "star", "score", "completedTime", "totalClicked", "sound"
+      // `;
+
+
+
+      const sql = `
+        update "UserGameProgress"
+        set "level" = $2,
+            "star" = $3,
+            "score" = $4,
+            "completedTime" = $5,
+            "totalClicked" = $6,
+            "sound" = $7
+           where "userId" = $1
+           and "level"= $2
+          and "createdAt" = (select max("createdAt") from "UserGameProgress" where "userId"=$1 and "level" = $2)
+        returning "level", "star", "score", "completedTime", "totalClicked", "sound"
+      `;
+
+      const params = [
+        req.user?.userId,
+        level,
+        star,
+        score,
+        completedTime,
+        totalClick,
+        sound,
+      ];
+
+      console.log('params from the backend', params);
+
+      const result = await db.query<GameProgressData>(sql, params);
+      const updatedData = result.rows[0];
+      res.status(201).json(updatedData);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+);
+
+app.get('/api/level-and-theme', authMiddleware, async (req, res, next) => {
+  try {
     const sql = `
       select "level", "cardTheme"
-      from "cards"
+      from "UserGameProgress"
       where "userId" = $1
       order by "createdAt" desc
     `;
 
-    const result = await db.query<LevelAndTheme>(sql,[req.user?.userId]);
+    const result = await db.query<LevelAndTheme>(sql, [req.user?.userId]);
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    next(err)
+    next(err);
   }
-})
+});
 
-app.get('/api/pokemon',authMiddleware, async (req, res, next) => {
+app.get('/api/pokemon', authMiddleware, async (req, res, next) => {
   try {
     const sql = `
       SELECT "imageUrl", "name" FROM "pokemonData"
@@ -221,3 +306,6 @@ app.use(errorMiddleware);
 app.listen(process.env.PORT, () => {
   process.stdout.write(`\n\napp listening on port ${process.env.PORT}\n\n`);
 });
+
+/** Listen */
+// httpServer.listen(1337, () => console.info(`Server is running`));
