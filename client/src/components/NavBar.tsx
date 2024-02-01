@@ -35,6 +35,16 @@ export function NavBar() {
                   <p>
                     <Link
                       className="link-style"
+                      to="/leader-board"
+                      onClick={() => {
+                        setIsHidden(true);
+                      }}>
+                      Leader Board
+                    </Link>
+                  </p>
+                  <p>
+                    <Link
+                      className="link-style"
                       to=""
                       onClick={() => {
                         setIsHidden(true);

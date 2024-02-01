@@ -2,7 +2,6 @@ import {
   getPokemonData,
   getLevelAndTheme,
   updateGameProgressData,
-  updateLevelOnDB,
 } from '../lib/data';
 import { useEffect, useState, useContext } from 'react';
 import { AppContext } from '../components/AppContext';
@@ -31,12 +30,9 @@ export function GamePage({ onUpdateScore }) {
   const [totalTimeSpent, setTotalTimeSpent] = useState(0);
   const [stopTiming, setStopTiming] = useState(false);
   const [sound, setSound] = useState(true);
-  const [overallPercentage, setOverallPercentage] = useState(0);
 
-  const { user, token, level, cardTheme, star } = useContext(AppContext);
+  const { user, token, level, cardTheme } = useContext(AppContext);
   const navigate = useNavigate();
-
-  // let overallPercentage = null;
 
   useEffect(() => {
     async function fetchPokemon() {
@@ -82,54 +78,6 @@ export function GamePage({ onUpdateScore }) {
     };
   }, [startTime, stopTiming]);
 
-  // useEffect(() => {
-  //   if (flippedCount === 2) {
-  //     const [card1, card2] = flippedCards;
-  //     if (card1.imageUrl === card2.imageUrl) {
-  //       setCards((cards) =>
-  //         cards.map((card) =>
-  //           card.cardId === card1.cardId || card.cardId === card2.cardId
-  //             ? { ...card, flipped: true }
-  //             : card
-  //         )
-  //       );
-
-  //       setNumOfCorrectFlippedCards(numOfCorrectFlippedCards + 2);
-  //       setFlippedCards([]);
-  //       setFlippedCount(0);
-  //       sound && new Audio(matchSound).play();
-
-  //       if (numOfCorrectFlippedCards === cards.length - 2) {
-  //         sound && new Audio(winSound).play();
-  //         setStopTiming(true);
-  //         const star = onUpdateScore(
-  //           calculateStars(
-  //             level as number,
-  //             totalNumCardsClicked,
-  //             totalTimeSpent
-  //           )
-  //         );
-
-  //         setTimeout(() => {
-  //           navigate('/level-up');
-  //         }, 800);
-  //       }
-  //     } else {
-  //       setTimeout(() => {
-  //         setFlippedCards([]);
-  //         setFlippedCount(0);
-  //         setCards(
-  //           cards.map((card) =>
-  //             card.cardId === card1.cardId || card.cardId === card2.cardId
-  //               ? { ...card, flipped: false }
-  //               : card
-  //           )
-  //         );
-  //       }, 500);
-  //     }
-  //   }
-  // }, [flippedCards, flippedCount]);
-
   useEffect(() => {
     async function fetchData() {
       if (flippedCount === 2) {
@@ -151,36 +99,22 @@ export function GamePage({ onUpdateScore }) {
           if (numOfCorrectFlippedCards === cards.length - 2) {
             sound && new Audio(winSound).play();
             setStopTiming(true);
-            // const star = calculateStars(
-            //   level as number,
-            //   totalNumCardsClicked,
-            //   totalTimeSpent
-            // );
 
-            onUpdateScore(calculateStars(
+            const score = calculateScore(
               level as number,
               totalNumCardsClicked,
               totalTimeSpent
-            ));
+            );
 
-            // console.log(
-            //   token,
-            //   level!,
-            //   star,
-            //   overallPercentage,
-            //   totalTimeSpent,
-            //   totalNumCardsClicked,
-            //   sound
-            // );
+            const star = starResult(score);
+            onUpdateScore(star);
 
-            const madeUpStar = 5;
-            const madeUpScore = 80;
             token &&
               (await updateGameProgressData(
                 token,
                 level!,
-                madeUpStar,
-                madeUpScore,
+                star,
+                score,
                 totalTimeSpent,
                 totalNumCardsClicked,
                 sound
@@ -222,7 +156,23 @@ export function GamePage({ onUpdateScore }) {
     }
   };
 
-  const calculateStars = (
+  const starResult = (percentage: number) => {
+    if (percentage >= 80) {
+      return 5;
+    } else if (percentage >= 70) {
+      return 4;
+    } else if (percentage >= 50) {
+      return 3;
+    } else if (percentage >= 30) {
+      return 2;
+    } else if (percentage >= 10) {
+      return 1;
+    } else {
+      return 0;
+    }
+  };
+
+  const calculateScore = (
     level: number,
     numberClicks: number,
     totalTimeSpent: number
@@ -246,21 +196,8 @@ export function GamePage({ onUpdateScore }) {
       ((maxTotalTimeSpent - totalTimeSpent) / maxTotalTimeSpent) * 100;
 
     const percentage = (clicksPercentage + timePercentage) / 2;
-    setOverallPercentage(percentage);
-
-    if (percentage >= 80) {
-      return 5;
-    } else if (percentage >= 70) {
-      return 4;
-    } else if (percentage >= 50) {
-      return 3;
-    } else if (percentage >= 30) {
-      return 2;
-    } else if (percentage >= 10) {
-      return 1;
-    } else {
-      return 0;
-    }
+    // setScore(percentage);
+    return percentage;
   };
 
   function muteSound(sound: string) {

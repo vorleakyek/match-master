@@ -134,39 +134,11 @@ app.post('/api/level-and-theme', authMiddleware, async (req, res, next) => {
   }
 });
 
-app.put('/api/update-level', authMiddleware, async (req, res, next) => {
-  try {
-    const { level: levelRaw } = req.body as Partial<LevelAndTheme>;
-    const level = Number(levelRaw);
-    if (!level) {
-      throw new ClientError(400, 'level is required');
-    }
-
-    const sql = `
-    update "UserGameProgress"
-    set "level" = $2
-    where "userId" = $1
-    returning "level","cardTheme"
-  `;
-
-    const params = [req.user?.userId, level];
-    const result = await db.query<LevelAndTheme>(sql, params);
-    const updatedLevel = result.rows[0];
-    res.status(201).json(updatedLevel);
-  } catch (err) {
-    next(err);
-  }
-});
-
 app.put(
   '/api/update-user-game-progress',
   authMiddleware,
   async (req, res, next) => {
     try {
-      console.log(req.body);
-      // const { level: rawLevel, star: rawStar, score: rawScore, completedTime: rawTime, totalClick: rawClick, sound } =
-      //   req.body as Partial<GameProgressData>;
-
       const {
         level,
         star,
@@ -183,21 +155,6 @@ app.put(
         );
       }
 
-
-      // const sql = `
-      //   update "UserGameProgress"
-      //   set "level" = $2,
-      //       "star" = $3,
-      //       "score" = $4,
-      //       "completedTime" = $5,
-      //       "totalClicked" = $6,
-      //       "sound" = $7
-      //   where "userId" = $1
-      //   returning "level", "star", "score", "completedTime", "totalClicked", "sound"
-      // `;
-
-
-
       const sql = `
         update "UserGameProgress"
         set "level" = $2,
@@ -205,7 +162,8 @@ app.put(
             "score" = $4,
             "completedTime" = $5,
             "totalClicked" = $6,
-            "sound" = $7
+            "sound" = $7,
+            "createdAt" = NOW()
            where "userId" = $1
            and "level"= $2
           and "createdAt" = (select max("createdAt") from "UserGameProgress" where "userId"=$1 and "level" = $2)
@@ -222,8 +180,6 @@ app.put(
         sound,
       ];
 
-      console.log('params from the backend', params);
-
       const result = await db.query<GameProgressData>(sql, params);
       const updatedData = result.rows[0];
       res.status(201).json(updatedData);
@@ -233,6 +189,46 @@ app.put(
     }
   }
 );
+
+app.get('/api/leadership-board',authMiddleware, async (req, res, next)=>{
+  try {
+
+    //figure out the SQL query command
+    // const sql = `
+    //   WITH RankedUserScores AS (
+    //     SELECT
+    //       userId,
+    //       level,
+    //       score,
+    //       ROW_NUMBER() OVER (PARTITION BY level ORDER BY score DESC) AS ranking
+    //     FROM
+    //       UserGameProgress
+    //   )
+    //   SELECT
+    //     userId,
+    //     level,
+    //     score
+    //   FROM
+    //     RankedUserScores
+    //   WHERE
+    //     ranking <= 5
+    //   ORDER BY
+    //     level,
+    //     score DESC
+    // `;
+
+    const sql = `
+      SELECT "userId", "level", "score", "completedTime", "totalClicked","star"
+        FROM "UserGameProgress"
+    `;
+
+    const result = await db.query<GameProgressData>(sql);
+    console.log(result);
+    res.status(201).json(result.rows);
+  }catch(err) {
+    next(err);
+  }
+})
 
 app.get('/api/level-and-theme', authMiddleware, async (req, res, next) => {
   try {
