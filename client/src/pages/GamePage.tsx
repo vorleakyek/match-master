@@ -1,4 +1,8 @@
-import { getPokemonData, getLevelAndTheme } from '../lib/data';
+import {
+  getPokemonData,
+  getLevelAndTheme,
+  updateGameProgressData,
+} from '../lib/data';
 import { useEffect, useState, useContext } from 'react';
 import { AppContext } from '../components/AppContext';
 import { useNavigate } from 'react-router-dom';
@@ -10,9 +14,9 @@ import { FaVolumeXmark, FaVolumeLow } from 'react-icons/fa6';
 type Cards = {
   cardId: string;
   flipped: boolean;
-  imageUrl:string;
-  name:string;
-}
+  imageUrl: string;
+  name: string;
+};
 
 export function GamePage({ onUpdateScore }) {
   const [cards, setCards] = useState<Cards[]>([]);
@@ -36,7 +40,10 @@ export function GamePage({ onUpdateScore }) {
         const pokemonDataArr = await getPokemonData(token as string);
         const { level } = await getLevelAndTheme(token as string);
         const distinctCardsLevels = { 1: 3, 2: 6, 3: 9 };
-        const distinctCards = pokemonDataArr.slice(0, distinctCardsLevels[level]);
+        const distinctCards = pokemonDataArr.slice(
+          0,
+          distinctCardsLevels[level]
+        );
         const doublePokemonData = distinctCards.concat(distinctCards);
         const pokemonArray = doublePokemonData.map((item, index) => ({
           ...item,
@@ -72,49 +79,70 @@ export function GamePage({ onUpdateScore }) {
   }, [startTime, stopTiming]);
 
   useEffect(() => {
-    if (flippedCount === 2) {
-      const [card1, card2] = flippedCards;
-      if (card1.imageUrl === card2.imageUrl) {
-        setCards((cards) =>
-          cards.map((card) =>
-            card.cardId === card1.cardId || card.cardId === card2.cardId
-              ? { ...card, flipped: true }
-              : card
-          )
-        );
-
-        setNumOfCorrectFlippedCards(numOfCorrectFlippedCards + 2);
-        setFlippedCards([]);
-        setFlippedCount(0);
-        sound && new Audio(matchSound).play();
-
-        if (numOfCorrectFlippedCards === cards.length - 2) {
-          sound && new Audio(winSound).play();
-          setStopTiming(true);
-          onUpdateScore(
-            calculateStars(level as number, totalNumCardsClicked, totalTimeSpent)
-          );
-          setTimeout(() => {
-            navigate('/level-up');
-          }, 800);
-        }
-      } else {
-        setTimeout(() => {
-          setFlippedCards([]);
-          setFlippedCount(0);
-          setCards(
+    async function fetchData() {
+      if (flippedCount === 2) {
+        const [card1, card2] = flippedCards;
+        if (card1.imageUrl === card2.imageUrl) {
+          setCards((cards) =>
             cards.map((card) =>
               card.cardId === card1.cardId || card.cardId === card2.cardId
-                ? { ...card, flipped: false }
+                ? { ...card, flipped: true }
                 : card
             )
           );
-        }, 500);
+
+          setNumOfCorrectFlippedCards(numOfCorrectFlippedCards + 2);
+          setFlippedCards([]);
+          setFlippedCount(0);
+          sound && new Audio(matchSound).play();
+
+          if (numOfCorrectFlippedCards === cards.length - 2) {
+            sound && new Audio(winSound).play();
+            setStopTiming(true);
+
+            const score = calculateScore(
+              level as number,
+              totalNumCardsClicked,
+              totalTimeSpent
+            );
+
+            const star = starResult(score);
+            onUpdateScore(star);
+
+            token &&
+              (await updateGameProgressData(
+                token,
+                level!,
+                star,
+                score,
+                totalTimeSpent,
+                totalNumCardsClicked,
+                sound
+              ));
+
+            setTimeout(() => {
+              navigate('/level-up');
+            }, 800);
+          }
+        } else {
+          setTimeout(() => {
+            setFlippedCards([]);
+            setFlippedCount(0);
+            setCards(
+              cards.map((card) =>
+                card.cardId === card1.cardId || card.cardId === card2.cardId
+                  ? { ...card, flipped: false }
+                  : card
+              )
+            );
+          }, 500);
+        }
       }
     }
+    fetchData();
   }, [flippedCards, flippedCount]);
 
-  const handleCardClick = (clickedCard:Cards) => {
+  const handleCardClick = (clickedCard: Cards) => {
     sound && new Audio(flippedSound).play();
     setTotalNumCardsClicked(totalNumCardsClicked + 1);
     if (flippedCount < 2 && !clickedCard.flipped) {
@@ -128,13 +156,33 @@ export function GamePage({ onUpdateScore }) {
     }
   };
 
-  const calculateStars = (level:number, numberClicks:number, totalTimeSpent:number) => {
+  const starResult = (percentage: number) => {
+    if (percentage >= 80) {
+      return 5;
+    } else if (percentage >= 70) {
+      return 4;
+    } else if (percentage >= 50) {
+      return 3;
+    } else if (percentage >= 30) {
+      return 2;
+    } else if (percentage >= 10) {
+      return 1;
+    } else {
+      return 0;
+    }
+  };
+
+  const calculateScore = (
+    level: number,
+    numberClicks: number,
+    totalTimeSpent: number
+  ) => {
     let maxClicks = 0;
     let maxTotalTimeSpent = 0;
 
     if (level === 1) {
-      maxClicks = 15;
-      maxTotalTimeSpent = 100;
+      maxClicks = 30;
+      maxTotalTimeSpent = 120;
     } else if (level === 2) {
       maxClicks = 60;
       maxTotalTimeSpent = 240;
@@ -147,30 +195,17 @@ export function GamePage({ onUpdateScore }) {
     const timePercentage =
       ((maxTotalTimeSpent - totalTimeSpent) / maxTotalTimeSpent) * 100;
 
-    const overallPercentage = (clicksPercentage + timePercentage) / 2;
-
-    if (overallPercentage >= 80) {
-      return 5;
-    } else if (overallPercentage >= 70) {
-      return 4;
-    } else if (overallPercentage >= 50) {
-      return 3;
-    } else if (overallPercentage >= 30) {
-      return 2;
-    } else if (overallPercentage >= 10) {
-      return 1;
-    } else {
-      return 0;
-    }
+    const percentage = (clicksPercentage + timePercentage) / 2;
+    // setScore(percentage);
+    return percentage;
   };
 
-  function muteSound(sound:string) {
-    if(sound) {
+  function muteSound(sound: string) {
+    if (sound) {
       setSound(false);
     } else {
       setSound(true);
     }
-
   }
 
   const cardColumnLevel = (level) => {
@@ -181,8 +216,7 @@ export function GamePage({ onUpdateScore }) {
     } else {
       return 'col-lev-3';
     }
-
-  }
+  };
 
   return (
     <>

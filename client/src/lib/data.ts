@@ -8,6 +8,17 @@ export type PokemonData = {
   name: string;
 };
 
+export type GameProgressData = {
+  token: string;
+  level: number;
+  star: number;
+  score: number;
+  completedTime: number;
+  totalClick: number;
+  sound: boolean;
+};
+
+
 export async function addLevelAndTheme(
   token: string,
   levelAndTheme: LevelAndTheme
@@ -46,6 +57,38 @@ export async function updateLevelOnDB(
   return await res.json();
 }
 
+
+export async function updateGameProgressData(
+  token: string,
+  currentLevel: number,
+  numStars: number,
+  rawScore: number,
+  timeCompleted: number,
+  numClicked: number,
+  sound: boolean
+): Promise<GameProgressData> {
+  const req = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      level: currentLevel,
+      star: numStars,
+      score: rawScore,
+      completedTime: timeCompleted,
+      totalClick: numClicked,
+      sound
+    }),
+  };
+
+  const res = await fetch('/api/update-user-game-progress', req);
+
+  if (!res.ok) throw new Error(`fetch Error ${res.status}`);
+  return await res.json();
+}
+
 export async function getLevelAndTheme(token: string): Promise<LevelAndTheme> {
   const req = {
     method: 'GET',
@@ -55,6 +98,26 @@ export async function getLevelAndTheme(token: string): Promise<LevelAndTheme> {
     },
   };
   const res = await fetch('api/level-and-theme', req);
+  if (!res.ok) throw new Error(`fetch Error ${res.status}`);
+  return await res.json();
+}
+
+// export type topPlayer = {
+//   userId: number;
+//   level: number;
+//   score: number;
+//   ranking:number;
+// }
+
+export async function getTopPlayers(token: string): Promise<GameProgressData[]> {
+  const req = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const res = await fetch('/api/leadership-board', req);
   if (!res.ok) throw new Error(`fetch Error ${res.status}`);
   return await res.json();
 }
@@ -92,7 +155,6 @@ export async function getPokemonData(token: string): Promise<PokemonData[]> {
 //     }));
 //     return pokemon;
 //   })
-//   // return arrPromise;
 // }
 
 // export async function savePokemonImgUrlToDB() {

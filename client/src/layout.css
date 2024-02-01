@@ -85,6 +85,10 @@ body {
   width: 20%;
 }
 
+.column-one-forth{
+  width: 25%;
+}
+
 .column-three-fifth{
   width:60%;
 }
@@ -111,6 +115,10 @@ body {
 
 .paddingLR-20 {
   padding:0 20px;
+}
+
+.padding-top-10 {
+  padding-top: 10px;
 }
 
 .margin-bottom-10 {

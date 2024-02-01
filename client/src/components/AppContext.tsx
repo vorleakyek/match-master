@@ -6,7 +6,7 @@ type AppContentValues = {
   token: string | undefined;
   level: number | undefined;
   cardTheme: string;
-  score: number;
+  star: number;
   handleSignIn: (auth: Auth) => void;
   handleSignOut: () => void;
   handleLevelAndTheme: () => void;

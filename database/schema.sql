@@ -13,13 +13,16 @@ CREATE TABLE "users" (
   "createdAt" timestamptz(6) not null default now()
 );
 
-CREATE TABLE "cards" (
+CREATE TABLE "UserGameProgress" (
   "setOfCardsId" serial PRIMARY KEY,
-  "userId" integer,
+  "userId" integer not null,
   "level" integer not null,
   "cardTheme" text not null,
-  "numCardsFlipped" integer,
-  "sound" boolean ,
+  "star" integer,
+  "score" decimal,
+  "completedTime" decimal,
+  "totalClicked" integer,
+  "sound" boolean,
   "createdAt" timestamptz(6) not null default now()
 );
 

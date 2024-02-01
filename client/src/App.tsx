@@ -5,6 +5,7 @@ import { NavBar } from './components/NavBar';
 import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
 import { GamePage } from './pages/GamePage';
+import { LeaderBoardPage } from './pages/LearderBoardPage';
 import { Footer } from './components/Footer';
 import './App.css';
 import { Auth, User } from './lib/api';
@@ -20,7 +21,7 @@ export default function App() {
   const [level, setLevel] = useState<number>();
   const [cardTheme, setCardTheme] = useState<string>('pokeball');
   const [isAuthorizing, setIsAuthorizing] = useState(true);
-  const [score, setScore] = useState(0);
+  const [star, setStar] = useState(0);
 
   const navigate = useNavigate();
 
@@ -72,7 +73,7 @@ export default function App() {
     token,
     level,
     cardTheme,
-    score,
+    star,
     handleSignIn,
     handleSignOut,
     handleLevelAndTheme,
@@ -86,7 +87,9 @@ export default function App() {
           <Route
             path="game-page"
             element={
-              <GamePage onUpdateScore={(newScore:number) => setScore(newScore)} />
+              <GamePage
+                onUpdateScore={(newScore: number) => setStar(newScore)}
+              />
             }
           />
           <Route path="sign-in" element={<AuthPage action="sign-in" />} />
@@ -95,10 +98,11 @@ export default function App() {
             path="level-up"
             element={
               <LevelUpPage
-                onNextLevel={(updateLevel:number) => setLevel(updateLevel)}
+                onNextLevel={(updateLevel: number) => setLevel(updateLevel)}
               />
             }
           />
+          <Route path="leader-board" element={<LeaderBoardPage/>}/>
         </Route>
       </Routes>
       <Footer />
