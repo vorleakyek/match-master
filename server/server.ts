@@ -14,8 +14,6 @@ import type {
   PokemonData,
   GameProgressData,
 } from '../client/src/lib/data';
-// import { ServerSocket } from './socket.js';
-// import http from 'http';
 
 type User = {
   userId: number;
@@ -43,12 +41,6 @@ const hashKey = process.env.TOKEN_SECRET;
 if (!hashKey) throw new Error('TOKEN_SECRET not found in .env');
 
 const app = express();
-
-/**Server Handling */
-// const httpServer = http.createServer(app);
-
-/** Start the Scoket */
-// new ServerSocket(httpServer);
 
 // Create paths for static directories
 const reactStaticDir = new URL('../client/dist', import.meta.url).pathname;
@@ -193,30 +185,6 @@ app.put(
 app.get('/api/leadership-board',authMiddleware, async (req, res, next)=>{
   try {
 
-    //figure out the SQL query command
-    // const sql = `
-    //   WITH RankedUserScores AS (
-    //     SELECT
-    //       userId,
-    //       level,
-    //       score,
-    //       ROW_NUMBER() OVER (PARTITION BY level ORDER BY score DESC) AS ranking
-    //     FROM
-    //       UserGameProgress
-    //   )
-    //   SELECT
-    //     userId,
-    //     level,
-    //     score
-    //   FROM
-    //     RankedUserScores
-    //   WHERE
-    //     ranking <= 5
-    //   ORDER BY
-    //     level,
-    //     score DESC
-    // `;
-
     const sql = `
       SELECT "userId", "level", "score", "completedTime", "totalClicked","star"
         FROM "UserGameProgress"
@@ -302,6 +270,3 @@ app.use(errorMiddleware);
 app.listen(process.env.PORT, () => {
   process.stdout.write(`\n\napp listening on port ${process.env.PORT}\n\n`);
 });
-
-/** Listen */
-// httpServer.listen(1337, () => console.info(`Server is running`));
