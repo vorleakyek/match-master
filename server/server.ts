@@ -13,6 +13,7 @@ import type {
   LevelAndTheme,
   PokemonData,
   GameProgressData,
+  topPlayerData,
 } from '../client/src/lib/data';
 
 type User = {
@@ -131,16 +132,17 @@ app.put(
   authMiddleware,
   async (req, res, next) => {
     try {
-      const {
-        level,
-        star,
-        score,
-        completedTime,
-        totalClick,
-        sound
-      } = req.body as Partial<GameProgressData>;
+      const { level, star, score, completedTime, totalClick, sound } =
+        req.body as Partial<GameProgressData>;
 
-      if (!level || !star || !score || !completedTime || !totalClick || sound===null) {
+      if (
+        !level ||
+        !star ||
+        !score ||
+        !completedTime ||
+        !totalClick ||
+        sound === null
+      ) {
         throw new ClientError(
           400,
           'level, star, score, completedTime, totalClick, and sound are required'
@@ -182,21 +184,50 @@ app.put(
   }
 );
 
-app.get('/api/leadership-board',authMiddleware, async (req, res, next)=>{
+app.get('/api/leadership-board', authMiddleware, async (req, res, next) => {
   try {
-
     const sql = `
-      SELECT "userId", "level", "score", "completedTime", "totalClicked","star"
-        FROM "UserGameProgress"
+    WITH "RankedUserScores" AS (
+      SELECT
+          "userId",
+          "level",
+          CAST("score" AS float) AS "score",
+          "totalClicked",
+          "star",
+          CAST("completedTime" AS float) AS "completedTime",
+          ROW_NUMBER() OVER (PARTITION BY "userId", "level" ORDER BY "score" DESC) AS ranking
+      FROM
+          "UserGameProgress"
+      WHERE
+          "score" IS NOT NULL
+          AND "totalClicked" IS NOT NULL
+          AND "star" IS NOT NULL
+          AND "completedTime" IS NOT NULL
+    )
+    SELECT
+        u."username",
+        r."level",
+        r."score",
+        r."totalClicked",
+        r."star",
+        r."completedTime"
+    FROM
+        "RankedUserScores" as r
+    JOIN
+        "users" AS u ON r."userId" = u."userId"
+    WHERE
+        r.ranking = 1
+    ORDER BY
+        r."userId",
+        r."level"
     `;
 
-    const result = await db.query<GameProgressData>(sql);
-    console.log(result);
+    const result = await db.query<topPlayerData[]>(sql);
     res.status(201).json(result.rows);
-  }catch(err) {
+  } catch (err) {
     next(err);
   }
-})
+});
 
 app.get('/api/level-and-theme', authMiddleware, async (req, res, next) => {
   try {

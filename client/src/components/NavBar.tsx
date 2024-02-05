@@ -39,7 +39,7 @@ export function NavBar() {
                       onClick={() => {
                         setIsHidden(true);
                       }}>
-                      Leader Board
+                      Leadership Board
                     </Link>
                   </p>
                   <p>

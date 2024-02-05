@@ -18,11 +18,12 @@ type Cards = {
   name: string;
 };
 
-export function GamePage({ onUpdateScore }) {
+export function GamePage({ onUpdateStar }) {
   const [cards, setCards] = useState<Cards[]>([]);
   const [flippedCount, setFlippedCount] = useState(0);
   const [flippedCards, setFlippedCards] = useState<Cards[]>([]);
   const [numOfCorrectFlippedCards, setNumOfCorrectFlippedCards] = useState(0);
+
   const [totalNumCardsClicked, setTotalNumCardsClicked] = useState(0);
   const [startTime, setStartTime] = useState(new Date());
   const [timeSpentInSecond, setTimeSpentInSecond] = useState(0);
@@ -81,6 +82,7 @@ export function GamePage({ onUpdateScore }) {
   useEffect(() => {
     async function fetchData() {
       if (flippedCount === 2) {
+
         const [card1, card2] = flippedCards;
         if (card1.imageUrl === card2.imageUrl) {
           setCards((cards) =>
@@ -96,6 +98,9 @@ export function GamePage({ onUpdateScore }) {
           setFlippedCount(0);
           sound && new Audio(matchSound).play();
 
+          console.log(numOfCorrectFlippedCards)
+
+
           if (numOfCorrectFlippedCards === cards.length - 2) {
             sound && new Audio(winSound).play();
             setStopTiming(true);
@@ -107,7 +112,7 @@ export function GamePage({ onUpdateScore }) {
             );
 
             const star = starResult(score);
-            onUpdateScore(star);
+            onUpdateStar(star);
 
             token &&
               (await updateGameProgressData(
@@ -260,9 +265,7 @@ export function GamePage({ onUpdateScore }) {
 
         <div className="card-container row justify-content-center ">
           <div
-            className={`row ${cardColumnLevel(
-              level
-            )} justify-content-space-around`}>
+            className={`row ${cardColumnLevel(level)} justify-content-space-around`}>
             {cards.map((card) => (
               <div className="card card-size" key={card.cardId}>
                 <Card

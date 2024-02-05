@@ -19,8 +19,8 @@ CREATE TABLE "UserGameProgress" (
   "level" integer not null,
   "cardTheme" text not null,
   "star" integer,
-  "score" decimal,
-  "completedTime" decimal,
+  "score" float,
+  "completedTime" float,
   "totalClicked" integer,
   "sound" boolean,
   "createdAt" timestamptz(6) not null default now()
@@ -32,6 +32,3 @@ CREATE TABLE "pokemonData" (
   "type" text,
   "imageUrl" text
 );
-
-
--- ALTER TABLE "cards" ADD FOREIGN KEY ("setOfCardsId") REFERENCES "users" ("userId");

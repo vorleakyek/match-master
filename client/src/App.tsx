@@ -88,7 +88,7 @@ export default function App() {
             path="game-page"
             element={
               <GamePage
-                onUpdateScore={(newScore: number) => setStar(newScore)}
+                onUpdateStar={(newScore: number) => setStar(newScore)}
               />
             }
           />
