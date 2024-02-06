@@ -178,3 +178,10 @@
   margin-top: 0;
   padding-top: 10px;
 }
+
+.table-style {
+  border: 1px solid #17A2B8;
+  background-color:#f5f5ff;
+  padding: 10px;
+  border-radius: 10px;
+}

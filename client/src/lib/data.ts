@@ -18,6 +18,15 @@ export type GameProgressData = {
   sound: boolean;
 };
 
+export type topPlayerData = {
+  username: string;
+  level: number;
+  score: number;
+  totalClicked: number;
+  star: number;
+  completedTime: number;
+};
+
 
 export async function addLevelAndTheme(
   token: string,
@@ -102,14 +111,7 @@ export async function getLevelAndTheme(token: string): Promise<LevelAndTheme> {
   return await res.json();
 }
 
-// export type topPlayer = {
-//   userId: number;
-//   level: number;
-//   score: number;
-//   ranking:number;
-// }
-
-export async function getTopPlayers(token: string): Promise<GameProgressData[]> {
+export async function getTopPlayers(token: string): Promise<topPlayerData[]> {
   const req = {
     method: 'GET',
     headers: {

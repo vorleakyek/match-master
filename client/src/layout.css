@@ -113,6 +113,10 @@ body {
   padding: 0 10px;
 }
 
+.padding-R-10 {
+  padding-right:10px;
+}
+
 .paddingLR-20 {
   padding:0 20px;
 }
@@ -131,6 +135,10 @@ body {
 
 .margin-left-20 {
   margin-left:20px;
+}
+
+.margin-right-5 {
+  margin-right:5px;
 }
 
 .align-items-center {
@@ -163,6 +171,12 @@ body {
 .col-lev-2,
 .col-lev-3 {
   width: 98%;
+}
+
+.level-heading {
+  padding-top:0;
+  margin-top:0;
+  margin-bottom: 10px;
 }
 
 @media screen and (width >=439px) {
