@@ -41,6 +41,7 @@ export function AuthForm({ action, onSignIn }: Props) {
 
   const submitButtonText = action === 'sign-up' ? 'Register' : 'Log In';
   return (
+
     <form onSubmit={handleSubmit}>
       <div className="row">
         <div className="column-full">

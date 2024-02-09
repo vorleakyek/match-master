@@ -23,9 +23,8 @@ export function GamePage({ onUpdateStar }) {
   const [flippedCount, setFlippedCount] = useState(0);
   const [flippedCards, setFlippedCards] = useState<Cards[]>([]);
   const [numOfCorrectFlippedCards, setNumOfCorrectFlippedCards] = useState(0);
-
   const [totalNumCardsClicked, setTotalNumCardsClicked] = useState(0);
-  const [startTime, setStartTime] = useState(new Date());
+  const [startTime, setStartTime] = useState(0);
   const [timeSpentInSecond, setTimeSpentInSecond] = useState(0);
   const [timeSpentInMinutes, setTimeSpentInMinutes] = useState(0);
   const [totalTimeSpent, setTotalTimeSpent] = useState(0);
@@ -60,12 +59,13 @@ export function GamePage({ onUpdateStar }) {
       }
     }
     fetchPokemon();
+    setStartTime(new Date().getTime());
   }, []);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      const endTime = new Date();
-      const timeSpent = (endTime.getTime() - startTime.getTime()) / 1000;
+      const endTime = new Date().getTime();
+      const timeSpent = (endTime - startTime) / 1000;
 
       if (!stopTiming) {
         setTotalTimeSpent(timeSpent);
@@ -79,10 +79,10 @@ export function GamePage({ onUpdateStar }) {
     };
   }, [startTime, stopTiming]);
 
+
   useEffect(() => {
     async function fetchData() {
       if (flippedCount === 2) {
-
         const [card1, card2] = flippedCards;
         if (card1.imageUrl === card2.imageUrl) {
           setCards((cards) =>
@@ -98,8 +98,7 @@ export function GamePage({ onUpdateStar }) {
           setFlippedCount(0);
           sound && new Audio(matchSound).play();
 
-          console.log(numOfCorrectFlippedCards)
-
+          console.log(numOfCorrectFlippedCards);
 
           if (numOfCorrectFlippedCards === cards.length - 2) {
             sound && new Audio(winSound).play();
@@ -205,7 +204,7 @@ export function GamePage({ onUpdateStar }) {
     return percentage;
   };
 
-  function muteSound(sound: string) {
+  function muteSound(sound: boolean) {
     if (sound) {
       setSound(false);
     } else {
@@ -265,7 +264,9 @@ export function GamePage({ onUpdateStar }) {
 
         <div className="card-container row justify-content-center ">
           <div
-            className={`row ${cardColumnLevel(level)} justify-content-space-around`}>
+            className={`row ${cardColumnLevel(
+              level
+            )} justify-content-space-around`}>
             {cards.map((card) => (
               <div className="card card-size" key={card.cardId}>
                 <Card
