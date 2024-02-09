@@ -17,7 +17,7 @@ export const AppContext = createContext<AppContentValues>({
   token: undefined,
   level: undefined,
   cardTheme: 'pokeball',
-  score: 0,
+  star: 0,
   handleSignIn: () => undefined,
   handleSignOut: () => undefined,
   handleLevelAndTheme: () => undefined,

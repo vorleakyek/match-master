@@ -5,7 +5,7 @@ import { NavBar } from './components/NavBar';
 import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
 import { GamePage } from './pages/GamePage';
-import { LeaderBoardPage } from './pages/LearderBoardPage';
+import { LeaderBoardPage } from './pages/LeaderBoardPage';
 import { Footer } from './components/Footer';
 import './App.css';
 import { Auth, User } from './lib/api';
