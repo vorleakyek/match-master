@@ -178,8 +178,7 @@ app.put(
       const updatedData = result.rows[0];
       res.status(201).json(updatedData);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
+      next(err);
     }
   }
 );
@@ -260,7 +259,7 @@ app.get('/api/pokemon', authMiddleware, async (req, res, next) => {
   }
 });
 
-/********** THIS ROUTE IS ONLY USED TO SAVE THE POKEMON DATA IN THE DATABASE ************/
+/** ******** THIS ROUTE IS ONLY USED TO SAVE THE POKEMON DATA IN THE DATABASE ************/
 // app.post('/api/save-pokemon-data', async (req, res, next) => {
 //   try {
 //     const { pokemonArr } = req.body;
