@@ -79,7 +79,6 @@ export function GamePage({ onUpdateStar }) {
     };
   }, [startTime, stopTiming]);
 
-
   useEffect(() => {
     async function fetchData() {
       if (flippedCount === 2) {
@@ -97,8 +96,6 @@ export function GamePage({ onUpdateStar }) {
           setFlippedCards([]);
           setFlippedCount(0);
           sound && new Audio(matchSound).play();
-
-          console.log(numOfCorrectFlippedCards);
 
           if (numOfCorrectFlippedCards === cards.length - 2) {
             sound && new Audio(winSound).play();
