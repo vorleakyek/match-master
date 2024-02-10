@@ -9,3 +9,5 @@
 --      ('Learn to code', false),
 --      ('Build projects', false),
 --      ('Get a job', false);
+
+pg_dump matchMaster > dumpfile;
