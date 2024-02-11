@@ -68,6 +68,16 @@ export default function App() {
     }
   }
 
+  function updateStarLevelTheme(
+    numStar: number,
+    level: number,
+    cardTheme: string
+  ) {
+    setStar(numStar);
+    setLevel(level);
+    setCardTheme(cardTheme);
+  }
+
   const contextValue = {
     user,
     token,
@@ -86,11 +96,7 @@ export default function App() {
           <Route index element={<HomePage />} />
           <Route
             path="game-page"
-            element={
-              <GamePage
-                onUpdateStar={(newScore: number) => setStar(newScore)}
-              />
-            }
+            element={<GamePage onUpdateStarLevelTheme={updateStarLevelTheme} />}
           />
           <Route path="sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="sign-up" element={<AuthPage action="sign-up" />} />
@@ -102,7 +108,7 @@ export default function App() {
               />
             }
           />
-          <Route path="leader-board" element={<LeaderBoardPage/>}/>
+          <Route path="leader-board" element={<LeaderBoardPage />} />
         </Route>
       </Routes>
       <Footer />

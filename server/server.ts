@@ -54,7 +54,9 @@ app.use(express.json());
 
 app.post('/api/auth/sign-up', async (req, res, next) => {
   try {
-    const { username, password } = req.body as Partial<Auth>;
+    const { username: usernameRaw, password } = req.body as Partial<Auth>;
+    const username = usernameRaw?.toLowerCase();
+
     if (!username || !password) {
       throw new ClientError(400, 'username and password are required fields');
     }
@@ -75,7 +77,8 @@ app.post('/api/auth/sign-up', async (req, res, next) => {
 
 app.post('/api/auth/sign-in', async (req, res, next) => {
   try {
-    const { username, password } = req.body as Partial<Auth>;
+    const { username: usernameRaw, password } = req.body as Partial<Auth>;
+    const username = usernameRaw?.toLowerCase();
     if (!username || !password) {
       throw new ClientError(401, 'invalid login');
     }

@@ -16,7 +16,7 @@ export function HomePage() {
       <div className="row">
         <div className="column-full">
           <p className="color-blue bold font-size-24">
-            Welcome to the matching cards game, {user?.username}!
+            Welcome to the matching cards game, {user?.username.toUpperCase()}!
           </p>
         </div>
       </div>
