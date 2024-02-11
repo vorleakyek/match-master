@@ -1,15 +1,16 @@
+import { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaVolumeXmark, FaVolumeLow } from 'react-icons/fa6';
+import flippedSound from '../assets/flipcard.mp3';
+import matchSound from '../assets/correct.mp3';
+import winSound from '../assets/level-win.mp3';
+import { AppContext } from '../components/AppContext';
+import { Card } from '../components/Card';
 import {
   getPokemonData,
   getLevelAndTheme,
   updateGameProgressData,
 } from '../lib/data';
-import { useEffect, useState, useContext } from 'react';
-import { AppContext } from '../components/AppContext';
-import { useNavigate } from 'react-router-dom';
-import flippedSound from '../assets/flipcard.mp3';
-import matchSound from '../assets/correct.mp3';
-import winSound from '../assets/level-win.mp3';
-import { FaVolumeXmark, FaVolumeLow } from 'react-icons/fa6';
 
 type Cards = {
   cardId: string;
@@ -18,7 +19,7 @@ type Cards = {
   name: string;
 };
 
-export function GamePage({ onUpdateStar }) {
+export function GamePage({ onUpdateStarLevelTheme }) {
   const [cards, setCards] = useState<Cards[]>([]);
   const [flippedCount, setFlippedCount] = useState(0);
   const [flippedCards, setFlippedCards] = useState<Cards[]>([]);
@@ -38,7 +39,8 @@ export function GamePage({ onUpdateStar }) {
     async function fetchPokemon() {
       try {
         const pokemonDataArr = await getPokemonData(token as string);
-        const { level } = await getLevelAndTheme(token as string);
+        const { level, cardTheme } = await getLevelAndTheme(token as string);
+        onUpdateStarLevelTheme(0, level, cardTheme);
         const distinctCardsLevels = { 1: 3, 2: 6, 3: 9 };
         const distinctCards = pokemonDataArr.slice(
           0,
@@ -80,7 +82,7 @@ export function GamePage({ onUpdateStar }) {
   }, [startTime, stopTiming]);
 
   useEffect(() => {
-    async function fetchData() {
+    async function compareCards() {
       if (flippedCount === 2) {
         const [card1, card2] = flippedCards;
         if (card1.imageUrl === card2.imageUrl) {
@@ -108,7 +110,7 @@ export function GamePage({ onUpdateStar }) {
             );
 
             const star = starResult(score);
-            onUpdateStar(star);
+            onUpdateStarLevelTheme(star, level, cardTheme);
 
             token &&
               (await updateGameProgressData(
@@ -123,7 +125,7 @@ export function GamePage({ onUpdateStar }) {
 
             setTimeout(() => {
               navigate('/level-up');
-            }, 800);
+            }, 1000);
           }
         } else {
           setTimeout(() => {
@@ -140,7 +142,7 @@ export function GamePage({ onUpdateStar }) {
         }
       }
     }
-    fetchData();
+    compareCards();
   }, [flippedCards, flippedCount]);
 
   const handleCardClick = (clickedCard: Cards) => {
@@ -197,16 +199,11 @@ export function GamePage({ onUpdateStar }) {
       ((maxTotalTimeSpent - totalTimeSpent) / maxTotalTimeSpent) * 100;
 
     const percentage = (clicksPercentage + timePercentage) / 2;
-    // setScore(percentage);
     return percentage;
   };
 
   function muteSound(sound: boolean) {
-    if (sound) {
-      setSound(false);
-    } else {
-      setSound(true);
-    }
+    setSound(!sound);
   }
 
   const cardColumnLevel = (level) => {
@@ -230,7 +227,7 @@ export function GamePage({ onUpdateStar }) {
             </p>
           </div>
           <div className="column-two-third text-align-right">
-            <p className="username uppercase">{user?.username}</p>
+            <p className="username uppercase">{user?.username.toUpperCase()}</p>
             <p className="color-blue">
               Time: {timeSpentInMinutes.toString().padStart(2, '0')} :{' '}
               {timeSpentInSecond.toString().padStart(2, '0')}{' '}
@@ -279,31 +276,5 @@ export function GamePage({ onUpdateStar }) {
         </div>
       </div>
     </>
-  );
-}
-
-function Card({ card, onClick, cardTheme }) {
-  const cardCover = (theme) => {
-    if (theme === 'island') {
-      return 'poke-island-theme';
-    }
-    if (theme === 'pokeball') {
-      return 'pokemon-card-theme';
-    } else {
-      return 'Ash-and-Pika-theme';
-    }
-  };
-
-  return (
-    <div
-      className={`card-inner ${card.flipped ? 'flipped' : ''}`}
-      id={card.id}
-      onClick={onClick}>
-      <div className={`card-front ${cardCover(cardTheme)}`}></div>
-      <div className="card-back">
-        <img className="card-image" src={card.imageUrl} />
-        <p className="no-margin">{card.name}</p>
-      </div>
-    </div>
   );
 }
