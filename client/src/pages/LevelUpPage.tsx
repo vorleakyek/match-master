@@ -1,7 +1,6 @@
-import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
 import { AppContext } from '../components/AppContext';
-// import { updateLevelOnDB } from "../lib/data";
 import { FaStar } from 'react-icons/fa';
 import { addLevelAndTheme } from '../lib/data';
 
@@ -9,8 +8,8 @@ type Props = {
   onNextLevel: (updateLevel: number) => void;
 };
 
-export function LevelUpPage( {onNextLevel}: Props ) {
-  const { token,level,star, cardTheme } = useContext(AppContext);
+export function LevelUpPage({ onNextLevel }: Props) {
+  const { token, level, star, cardTheme } = useContext(AppContext);
   const navigate = useNavigate();
 
   const numStars = star;
@@ -24,9 +23,8 @@ export function LevelUpPage( {onNextLevel}: Props ) {
     if (level !== undefined && level < 3) {
       const updatedLevel = level + 1;
       onNextLevel(updatedLevel);
-      // token && await updateLevelOnDB(token, updatedLevel);
-      const levelAndTheme = {level: updatedLevel, cardTheme: cardTheme }
-      token && await addLevelAndTheme(token,levelAndTheme);
+      const levelAndTheme = { level: updatedLevel, cardTheme: cardTheme };
+      token && (await addLevelAndTheme(token, levelAndTheme));
       navigate('/game-page');
     }
   }
