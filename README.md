@@ -1,8 +1,49 @@
-# final-project
+# match-master
 
-A full stack TypeScript solo project.
+A full stack TypeScript application for kids who wants to play a matching cards game.
 
-## Getting Started
+## why I Built This
+
+I want to build a fun game application for kids to play and getting them interested in learning about web development.
+
+## Technologies Used
+
+- React.js
+- CSS3
+- TypeScript
+- Node.js
+- Express
+- PostgreSQL
+- Amazon Web Service (AWS)
+- API from https://pokeapi.co
+
+## Live Demo
+
+Try the application live at [http://match-master-dev.us-west-1.elasticbeanstalk.com/sign-up](http://match-master-dev.us-west-1.elasticbeanstalk.com/sign-up)
+
+## Features
+
+- User can sign up and log in to play the matching cards game
+- User can play the matching cards game with three different levels and card themes
+- User can view the leadership board for top players of each level
+
+## Preview
+
+![Match-Master](client/src/assets/Match-Master.gif)
+
+## Development
+
+- Allow users to play as a guess instead of having to sign up
+- Implement multiple players option for live users to play as a group
+- User can logout and resume player without having to start over
+
+### System Requirements
+
+- Node.js 18 or higher
+- NPM 8 or higher
+- PostgreSQL
+
+### Getting Started
 
 ---
 
