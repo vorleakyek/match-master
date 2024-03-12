@@ -103,6 +103,7 @@ app.post('/api/auth/sign-in', async (req, res, next) => {
     const token = jwt.sign(payload, hashKey);
     res.json({ token, user: payload });
   } catch (err) {
+    res.json('invalid login');
     next(err);
   }
 });

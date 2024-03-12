@@ -20,6 +20,8 @@ export function AuthForm({ action, onSignIn }: Props) {
       const auth = await signIn(username, password);
       if (auth.user && auth.token) {
         onSignIn(auth);
+      } else {
+        setError(() => true);
       }
     }
     event.preventDefault();
@@ -41,7 +43,6 @@ export function AuthForm({ action, onSignIn }: Props) {
 
   const submitButtonText = action === 'sign-up' ? 'Register' : 'Log In';
   return (
-
     <form onSubmit={handleSubmit}>
       <div className="row">
         <div className="column-full">
@@ -64,6 +65,9 @@ export function AuthForm({ action, onSignIn }: Props) {
               className="input-style-1"
             />
           </label>
+          <span>
+            {error && <div style={{ color: 'red' }}>Invalid Login</div>}
+          </span>
         </div>
       </div>
       <div className="row">
@@ -71,13 +75,6 @@ export function AuthForm({ action, onSignIn }: Props) {
           <button className="btn-1">{submitButtonText}</button>
         </div>
       </div>
-      <>
-        {error && (
-          <div style={{ color: 'red' }}>
-            Error: {error instanceof Error ? error.message : 'Unknown Error'}
-          </div>
-        )}
-      </>
     </form>
   );
 }

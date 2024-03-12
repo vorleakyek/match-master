@@ -147,7 +147,7 @@ export function GamePage({ onUpdateStarLevelTheme }) {
 
   const handleCardClick = (clickedCard: Cards) => {
     sound && new Audio(flippedSound).play();
-    setTotalNumCardsClicked(totalNumCardsClicked + 1);
+    !clickedCard.flipped && setTotalNumCardsClicked(totalNumCardsClicked + 1);
     if (flippedCount < 2 && !clickedCard.flipped) {
       setFlippedCards([...flippedCards, clickedCard]);
       setFlippedCount(flippedCount + 1);
@@ -222,9 +222,7 @@ export function GamePage({ onUpdateStarLevelTheme }) {
         <div className="row justify-content-space-between paddingLR-20 ">
           <div className="column-third text-align-left">
             <p className="level">Level: {level}</p>
-            <p className="color-blue">
-              Number of cards Clicked: {totalNumCardsClicked}{' '}
-            </p>
+            <p className="color-blue">Total Clicks: {totalNumCardsClicked} </p>
           </div>
           <div className="column-two-third text-align-right">
             <p className="username uppercase">{user?.username.toUpperCase()}</p>
