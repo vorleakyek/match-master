@@ -37,7 +37,7 @@ export function AuthForm({ action, onSignIn }: Props) {
         handleSignIn(username, password);
       }
     } catch (err) {
-      setError(err);
+      setError(err as ReactNode);
     }
   }
 
