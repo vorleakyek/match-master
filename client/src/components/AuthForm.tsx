@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { type Auth, signIn, signUp } from '../lib';
 
@@ -9,7 +9,7 @@ type Props = {
 
 export function AuthForm({ action, onSignIn }: Props) {
   const navigate = useNavigate();
-  const [error, setError] = useState<unknown>();
+  const [error, setError] = useState<ReactNode>();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     async function handleSignUp(username: string, password: string) {
