@@ -189,7 +189,7 @@ export function calculateStar(percentage: number) {
   }
 }
 
-export function gameLevel(level: number) {
+export function gameLevel(level: number | undefined) {
   if (level === 1) {
     return 'col-lev-1';
   } else if (level === 2) {
