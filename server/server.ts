@@ -11,7 +11,6 @@ import {
 } from './lib/index.js';
 import type {
   LevelAndTheme,
-  PokemonData,
   GameProgressData,
   topPlayerData,
 } from '../client/src/lib/data';
@@ -247,49 +246,6 @@ app.get('/api/level-and-theme', authMiddleware, async (req, res, next) => {
     next(err);
   }
 });
-
-app.get('/api/pokemon', authMiddleware, async (req, res, next) => {
-  try {
-    const sql = `
-      SELECT "imageUrl", "name" FROM "pokemonData"
-      order by random()
-      LIMIT 9
-    `;
-
-    const result = await db.query<PokemonData[]>(sql);
-    res.status(200).json(result.rows);
-  } catch (err) {
-    next(err);
-  }
-});
-
-/** ******** THIS ROUTE IS ONLY USED TO SAVE THE POKEMON DATA IN THE DATABASE ************/
-// app.post('/api/save-pokemon-data', async (req, res, next) => {
-//   try {
-//     const { pokemonArr } = req.body;
-//     const values = pokemonArr
-//       .map(
-//         (item) =>
-//           `('${item.id}', '${item.name}', '${item.type}', '${item.imageUrl}')`
-//       )
-//       .join(',');
-
-//     const sql = `
-//       insert into "pokemonData" ("id","name","type","imageUrl")
-//       values ${values}
-//       returning *
-//     `;
-
-//     const result = await db.query(sql);
-//     const insertedRows = result.rows;
-
-//     res.status(201).json(insertedRows);
-//   } catch (err) {
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   }
-// });
-
-/*********************************************************************************************/
 
 /*
  * Middleware that handles paths that aren't handled by static middleware

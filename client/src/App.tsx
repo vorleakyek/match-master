@@ -1,17 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import { AppContext } from './components/AppContext';
-import { NavBar } from './components/NavBar';
+import './App.css';
+
+import { LeaderBoardPage } from './pages/LeaderBoardPage';
+import { LevelUpPage } from './pages/LevelUpPage';
 import { AuthPage } from './pages/AuthPage';
 import { HomePage } from './pages/HomePage';
 import { GamePage } from './pages/GamePage';
-import { LeaderBoardPage } from './pages/LeaderBoardPage';
+
+import { AppContext } from './components/AppContext';
 import { Footer } from './components/Footer';
-import './App.css';
+import { NavBar } from './components/NavBar';
+
 import { Auth, User } from './lib/api';
-import { LevelUpPage } from './pages/LevelUpPage';
 import { type LevelAndTheme, addLevelAndTheme } from './lib/data';
-import { FormEvent } from 'react';
 
 const tokenKey = 'react-context-jwt';
 
@@ -64,7 +66,7 @@ export default function App() {
       setCardTheme(cardTheme as string);
       navigate('/game-page');
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -96,7 +98,7 @@ export default function App() {
           <Route index element={<HomePage />} />
           <Route
             path="game-page"
-            element={<GamePage onUpdateStarLevelTheme={updateStarLevelTheme} />}
+            element={<GamePage updateStarLevelTheme={updateStarLevelTheme} />}
           />
           <Route path="sign-in" element={<AuthPage action="sign-in" />} />
           <Route path="sign-up" element={<AuthPage action="sign-up" />} />

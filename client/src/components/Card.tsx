@@ -12,7 +12,7 @@ export function Card({ card, onClick, cardTheme }) {
 
   return (
     <div
-      className={`card-inner ${card.flipped ? 'flipped' : ''}`}
+      className={`card-inner ${card.isFlipped ? 'flipped' : ''}`}
       id={card.id}
       onClick={onClick}>
       <div className={`card-front ${cardCover(cardTheme)}`}></div>

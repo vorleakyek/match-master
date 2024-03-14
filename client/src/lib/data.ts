@@ -8,6 +8,11 @@ export type PokemonData = {
   name: string;
 };
 
+export type PokemonAPI = {
+  name: string;
+  sprites: { front_default: string };
+};
+
 export type GameProgressData = {
   token: string;
   level: number;
@@ -26,7 +31,6 @@ export type topPlayerData = {
   star: number;
   completedTime: number;
 };
-
 
 export async function addLevelAndTheme(
   token: string,
@@ -66,7 +70,6 @@ export async function updateLevelOnDB(
   return await res.json();
 }
 
-
 export async function updateGameProgressData(
   token: string,
   currentLevel: number,
@@ -88,7 +91,7 @@ export async function updateGameProgressData(
       score: rawScore,
       completedTime: timeCompleted,
       totalClick: numClicked,
-      sound
+      sound,
     }),
   };
 
@@ -124,63 +127,74 @@ export async function getTopPlayers(token: string): Promise<topPlayerData[]> {
   return await res.json();
 }
 
-export async function getPokemonData(token: string): Promise<PokemonData[]> {
-  const req = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  };
-  const res = await fetch('api/pokemon', req);
-  if (!res.ok) throw new Error(`fetch Error ${res.status}`);
-  return await res.json();
+export async function fetchPokemonData(): Promise<PokemonData[]> {
+  const promises: Promise<PokemonData>[] = [];
+  for (let i = 1; i <= 9; i++) {
+    const min = 1;
+    const max = 1000;
+    const randomID = Math.floor(Math.random() * (max - min + 1)) + min;
+    const url = `https://pokeapi.co/api/v2/pokemon/${randomID}`;
+    const promise = fetch(url)
+      .then((res) => res.json())
+      .then((data: PokemonAPI) => ({
+        name: data.name,
+        imageUrl: data.sprites['front_default'],
+      }));
+    promises.push(promise);
+  }
+
+  return Promise.all(promises);
 }
 
-/***************** CODE FOR POKEMON DATA in the DATABASE *****************/
+export function calculateScore(
+  level: number,
+  numberClicks: number,
+  totalTimeSpent: number
+) {
+  let maxClicks = 0;
+  let maxTotalTimeSpent = 0;
 
-//RUN THIS CODES ONCE TO UPLOAD THE POKEMON DATA IN THE DATABASE
+  if (level === 1) {
+    maxClicks = 30;
+    maxTotalTimeSpent = 120;
+  } else if (level === 2) {
+    maxClicks = 60;
+    maxTotalTimeSpent = 240;
+  } else if (level === 3) {
+    maxClicks = 90;
+    maxTotalTimeSpent = 360;
+  }
 
-// export function fetchPokemonData () {
-//   const promises = [];
-//   for (let i = 1; i<=150; i++) {
-//     const url=`https://pokeapi.co/api/v2/pokemon/${i}`;
-//     promises.push(fetch(url).then(res=>res.json()));
-//   }
+  const clicksPercentage = ((maxClicks - numberClicks) / maxClicks) * 100;
+  const timePercentage =
+    ((maxTotalTimeSpent - totalTimeSpent) / maxTotalTimeSpent) * 100;
 
-//   return Promise.all(promises).then((results)=>{
-//     const pokemon = results.map((result)=>({
-//         name: result.name,
-//         imageUrl: result.sprites['front_default'],
-//         type: result.types.map((type)=>type.type.name).join(', '),
-//         id: result.id
-//     }));
-//     return pokemon;
-//   })
-// }
+  const percentage = (clicksPercentage + timePercentage) / 2;
+  return percentage;
+}
 
-// export async function savePokemonImgUrlToDB() {
+export function calculateStar(percentage: number) {
+  if (percentage >= 80) {
+    return 5;
+  } else if (percentage >= 70) {
+    return 4;
+  } else if (percentage >= 50) {
+    return 3;
+  } else if (percentage >= 30) {
+    return 2;
+  } else if (percentage >= 10) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
 
-//   console.log('running savePokemonImgUrlToDB')
-//   try {
-//     const pokemonArr = await fetchPokemonData();
-
-//     const req = {
-//       method: 'POST',
-//       headers: {'Content-Type': 'application/json'},
-//       body: JSON.stringify({pokemonArr})
-//     }
-
-//     const res = await fetch('/api/save-pokemon-data',req);
-//     console.log(res);
-//     if(!res.ok) throw new Error(`fetch Error ${res.status}`);
-
-//     return await res.json();
-//   } catch(err) {
-//     console.error(err);
-//     throw err;
-//   }
-
-// }
-
-// savePokemonImgUrlToDB()
+export function gameLevel(level: number) {
+  if (level === 1) {
+    return 'col-lev-1';
+  } else if (level === 2) {
+    return 'col-lev-2';
+  } else {
+    return 'col-lev-3';
+  }
+}

@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
-import { AppContext } from '../components/AppContext';
 import { FaStar } from 'react-icons/fa';
+import { AppContext } from '../components/AppContext';
 import { addLevelAndTheme } from '../lib/data';
 
 type Props = {
@@ -15,7 +15,6 @@ export function LevelUpPage({ onNextLevel }: Props) {
   const numStars = star;
 
   function handlePlayAgain() {
-    console.log('Play Again');
     navigate('/game-page');
   }
 
@@ -29,10 +28,24 @@ export function LevelUpPage({ onNextLevel }: Props) {
     }
   }
 
+  const resultMessage = (numStars) => {
+    if (numStars === 5) {
+      return 'Excellent!';
+    } else if (numStars === 4) {
+      return 'Well Done!';
+    } else if (numStars === 3) {
+      return 'Good!';
+    } else if (numStars === 2 || numStars === 1) {
+      return 'Nice Try!';
+    } else {
+      return 'Try Again!';
+    }
+  };
+
   return (
     <>
       <div className="container margin-top-0">
-        <h1 className="color-blue">Well done! </h1>
+        <h1 className="color-blue">{resultMessage(numStars)}</h1>
         {Array.from({ length: numStars }).map((_, index) => (
           <FaStar key={index} className="star filled" />
         ))}
