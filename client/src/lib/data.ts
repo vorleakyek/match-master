@@ -172,7 +172,6 @@ export function calculateScore(
   const percentage = (clicksPercentage + timePercentage) / 2;
   return percentage;
 }
-
 export function calculateStar(percentage: number) {
   if (percentage >= 80) {
     return 5;
@@ -182,10 +181,8 @@ export function calculateStar(percentage: number) {
     return 3;
   } else if (percentage >= 30) {
     return 2;
-  } else if (percentage >= 10) {
-    return 1;
   } else {
-    return 0;
+    return 1;
   }
 }
 

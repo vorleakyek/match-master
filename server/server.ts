@@ -141,7 +141,7 @@ app.put(
       if (
         !level ||
         !star ||
-        !score ||
+        (!score && score !== 0) ||
         !completedTime ||
         !totalClick ||
         sound === null

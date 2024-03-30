@@ -26,18 +26,17 @@ type Cards = {
 
 export function GamePage({ updateStarLevelTheme }) {
   const [cards, setCards] = useState<Cards[]>([]);
-  const [isMuted, setIsMuted] = useState(true);
-
-  const [startTime, setStartTime] = useState(0);
-  const [isStopTiming, setIsStopTiming] = useState(false);
-  const [totalTimeSpent, setTotalTimeSpent] = useState(0);
-  const [seconds, setSeconds] = useState(0);
-  const [minutes, setMinutes] = useState(0);
-
   const [totalClicks, setTotalClicks] = useState(0);
   const [flippedCount, setFlippedCount] = useState(0);
   const [flippedCards, setFlippedCards] = useState<Cards[]>([]);
   const [revealedCount, setRevealedCount] = useState(0);
+
+  const [startTime, setStartTime] = useState(0);
+  const [isMuted, setIsMuted] = useState(true);
+  const [isStopTiming, setIsStopTiming] = useState(false);
+  const [totalTimeSpent, setTotalTimeSpent] = useState(0);
+  const [seconds, setSeconds] = useState(0);
+  const [minutes, setMinutes] = useState(0);
 
   const { user, token, level, cardTheme } = useContext(AppContext);
   const navigate = useNavigate();
@@ -45,13 +44,15 @@ export function GamePage({ updateStarLevelTheme }) {
   useEffect(() => {
     async function generateCards() {
       try {
-        const pokemonDataArr = await fetchPokemonData();
-        const { level, cardTheme } = await getLevelAndTheme(token as string);
-        updateStarLevelTheme(0, level, cardTheme);
+        const pokemonDataArr = await fetchPokemonData(); //Get 9 distinct images and the names
+        const { level } = await getLevelAndTheme(token as string);
+
+        // const { level, cardTheme } = await getLevelAndTheme(token as string);
+        // updateStarLevelTheme(0, level, cardTheme);
         const distinctCardsLevels = { 1: 3, 2: 6, 3: 9 };
         const distinctCards = pokemonDataArr.slice(
           0,
-          distinctCardsLevels[level]
+          distinctCardsLevels[level as number]
         );
         const doublePokemonData = distinctCards.concat(distinctCards);
         const pokemonArray = doublePokemonData.map((item, index) => ({
