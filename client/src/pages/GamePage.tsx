@@ -45,10 +45,8 @@ export function GamePage({ updateStarLevelTheme }) {
     async function generateCards() {
       try {
         const pokemonDataArr = await fetchPokemonData(); //Get 9 distinct images and the names
-        const { level } = await getLevelAndTheme(token as string);
-
-        // const { level, cardTheme } = await getLevelAndTheme(token as string);
-        // updateStarLevelTheme(0, level, cardTheme);
+        const { level, cardTheme } = await getLevelAndTheme(token as string);
+        updateStarLevelTheme(0, level, cardTheme);
         const distinctCardsLevels = { 1: 3, 2: 6, 3: 9 };
         const distinctCards = pokemonDataArr.slice(
           0,
